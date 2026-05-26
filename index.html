@@ -422,11 +422,22 @@ function checkOkurigana(paragraphs) {
   function checkGroup(group) {
     var found = group.filter(function(w) { return text.indexOf(w) >= 0; });
     if (found.length > 1) {
-      var firstIdx = 0;
-      paragraphs.forEach(function(p, i) { if (p.indexOf(found[0]) >= 0 && firstIdx === 0) firstIdx = i; });
+      // 各語の出現箇所を収集
+      var occurrences = [];
+      found.forEach(function(w) {
+        paragraphs.forEach(function(p, i) {
+          if (p.indexOf(w) >= 0) {
+            occurrences.push({ word: w, idx: i });
+          }
+        });
+      });
       var labels = found.map(function(w) { return "\u300c" + w + "\u300d"; }).join("\u3068");
+      var firstIdx = occurrences.length > 0 ? occurrences[0].idx : 0;
+      // 推奨形（グループの最初の語）
+      var recommended = group[0];
       issues.push({ sev: "warning", type: "\u8868\u8a18\u3086\u308c", term: found.join(" / "),
-        desc: "\u8868\u8a18\u304c\u6df7\u5728\u3057\u3066\u3044\u307e\u3059: " + labels, idx: firstIdx });
+        desc: "\u8868\u8a18\u304c\u6df7\u5728\u3057\u3066\u3044\u307e\u3059: " + labels,
+        idx: firstIdx, occurrences: occurrences, recommended: recommended });
     }
   }
   groups.forEach(checkGroup);
@@ -493,6 +504,43 @@ function jumpTo(idx) {
   }).catch(function() {});
 }
 
+
+function fixYure(issue) {
+  if (!issue.occurrences || !issue.recommended) return;
+  // 修正対象の語を収集（recommended以外の語）
+  var toFix = {};
+  issue.occurrences.forEach(function(o) {
+    if (o.word !== issue.recommended) {
+      if (!toFix[o.word]) toFix[o.word] = [];
+      toFix[o.word].push(o.idx);
+    }
+  });
+  var words = Object.keys(toFix);
+  if (words.length === 0) { showToast("修正対象がありません"); return; }
+
+  Word.run(function(ctx) {
+    var ops = words.map(function(word) {
+      var results = ctx.document.body.search(word, { matchCase: true });
+      ctx.load(results, "text");
+      return { word: word, results: results };
+    });
+    return ctx.sync().then(function() {
+      var count = 0;
+      ops.forEach(function(op) {
+        op.results.items.forEach(function(r) {
+          r.insertText(issue.recommended, "Replace");
+          count++;
+        });
+      });
+      return ctx.sync().then(function() { return count; });
+    });
+  }).then(function(count) {
+    showToast(count + "箇所を「" + issue.recommended + "」に修正しました");
+    runAnalysis();
+  }).catch(function(e) {
+    showToast("修正エラー: " + (e.message || String(e)));
+  });
+}
 function applyFix() {
   if (G.fixing) return;
   G.fixing = true;
@@ -706,16 +754,62 @@ function renderAll() {
   } else {
     yureDesc.textContent = G.yureIssues.length + "件の表記ゆれを検出しました。";
     var yHtml = "";
-    G.yureIssues.forEach(function(i2) {
-      yHtml += '<div class="ic ic-wrn">'
-        + '<div class="ic-hdr"><span class="ic-type" style="background:var(--amber)">表記ゆれ</span>'
+    G.yureIssues.forEach(function(i2, ii) {
+      var typeColor = i2.type === "表記ゆれ" ? "var(--amber)" :
+                     i2.type === "重言" ? "#e879f9" :
+                     i2.type === "冗長表現" ? "#6366f1" :
+                     i2.type === "二重否定" ? "var(--red)" :
+                     i2.type === "曘昧表現" ? "#0891b2" :
+                     i2.type === "難解行政用語" ? "#7c3aed" :
+                     i2.type === "公用文表記" ? "#047857" : "var(--amber)";
+      yHtml += '<div class="ic ic-wrn" style="border-left-color:' + typeColor + ';background:#fffbeb">'
+        + '<div class="ic-hdr"><span class="ic-type" style="background:' + typeColor + '">' + esc(i2.type) + '</span>'
         + '<span class="ic-term">' + esc(i2.term) + '</span></div>'
-        + '<div class="ic-desc">' + esc(i2.desc) + '</div>'
-        + '<button class="btn-j" data-idx="' + i2.idx + '">該当箇所へ</button></div>';
+        + '<div class="ic-desc">' + esc(i2.desc) + '</div>';
+      // 出現箇所リンク（語ごとに色分け）
+      if (i2.occurrences && i2.occurrences.length > 0) {
+        yHtml += '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">';
+        // 語ごとにグループ化
+        var wordGroups = {};
+        i2.occurrences.forEach(function(o) {
+          if (!wordGroups[o.word]) wordGroups[o.word] = [];
+          wordGroups[o.word].push(o.idx);
+        });
+        Object.keys(wordGroups).forEach(function(word) {
+          var idxs = wordGroups[word];
+          idxs.forEach(function(pidx, pi) {
+            yHtml += '<button class="btn-occ" data-idx="' + pidx + '" style="font-size:10px;padding:2px 7px;border:1px solid var(--border);border-radius:100px;background:#fff;cursor:pointer;color:var(--text2)">'
+              + esc(word) + ' → 段落' + (pidx+1) + '</button>';
+          });
+        });
+        // 推奨形への一括修正ボタン
+        if (i2.recommended) {
+          yHtml += '<button class="btn-fix-yure" data-ii="' + ii + '" style="font-size:10px;padding:2px 9px;border:none;border-radius:100px;background:#047857;color:#fff;cursor:pointer;font-weight:600;margin-left:auto">'
+            + '「' + esc(i2.recommended) + '」に一括修正</button>';
+        }
+        yHtml += '</div>';
+      } else {
+        yHtml += '<button class="btn-j" data-idx="' + i2.idx + '">該当箇所へ</button>';
+      }
+      yHtml += '</div>';
     });
     yureEl.innerHTML = yHtml;
+    // 出現箇所ボタン
+    yureEl.querySelectorAll(".btn-occ").forEach(function(btn) {
+      btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
+    });
+    // 通常ジャンプボタン
     yureEl.querySelectorAll(".btn-j").forEach(function(btn) {
       btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
+    });
+    // 一括修正ボタン
+    yureEl.querySelectorAll(".btn-fix-yure").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        var ii = parseInt(btn.dataset.ii);
+        var issue = G.yureIssues[ii];
+        if (!issue || !issue.occurrences || !issue.recommended) return;
+        fixYure(issue);
+      });
     });
   }
 
