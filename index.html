@@ -408,23 +408,49 @@ function checkOkurigana(paragraphs) {
     ["\u7acb\u3066\u66ff\u3048", "\u7acb\u66ff\u3048", "\u7acb\u66ff"],
     ["\u5272\u308a\u5f53\u3066", "\u5272\u5f53\u3066", "\u5272\u5f53"]
   ];
-  // 語の後に助詞・句読点・括弧・スペース・文末が来る場合のみマッチ（活用形を除外）
-  var wordBoundary = /[\u3001\u3002\u300d\u300f\uff09\u3092\u3067\u306f\u306b\u3078\u304b\u304c\u3092\u3082\u3068\u3055\u308c\u3057\u306b\u3088\u308b\u306e\u308b\u3088\u3046\u305f\u3001\u3002\s$]/;
+  // 語境界チェック: 前後が「語の一部」でないかを確認
+  // ひらがなのうち助詞として使われるもの
+  var JOSHI = "\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3055";
+  // 境界文字（これが後ろに来ればOK）
+  function isAfterBoundary(ch) {
+    if (ch === "") return true; // 文末
+    var code = ch.charCodeAt(0);
+    // 句読点・記号・括弧類
+    if (ch === "\u3001" || ch === "\u3002" || ch === "\u300d" || ch === "\u300f" ||
+        ch === "\uff09" || ch === "\u3000" || ch === " " || ch === "\n" ||
+        ch === "\r" || ch === "\t") return true;
+    // 助詞
+    if (JOSHI.indexOf(ch) >= 0) return true;
+    // 全角英数字・半角英数字・漢字・カタカナ（別語が続く場合）
+    if (code >= 0xFF01 && code <= 0xFF60) return true; // 全角記号
+    if (code >= 0x30A0 && code <= 0x30FF) return true; // カタカナ
+    if (code >= 0x4E00 && code <= 0x9FFF) return true; // 漢字
+    if (code >= 0x0021 && code <= 0x007E) return true; // 半角ASCII記号・英数字
+    return false;
+  }
+  // 前の文字も確認（語の途中にマッチしていないか）
+  // 助詞・句読点の後は語頭としてOK
+  var JOSHI_BEFORE = "\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3055\u3001\u3002\u300c\u300e\uff08";
+  function isBeforeBoundary(ch) {
+    if (ch === "") return true; // 文頭
+    // 助詞・句読点・括弧開きの後はOK
+    if (JOSHI_BEFORE.indexOf(ch) >= 0) return true;
+    var code = ch.charCodeAt(0);
+    // その他のひらがな・カタカナ・漢字が前にある場合は語の途中
+    if (code >= 0x3041 && code <= 0x3096) return false; // ひらがな
+    if (code >= 0x30A0 && code <= 0x30FF) return false; // カタカナ
+    if (code >= 0x4E00 && code <= 0x9FFF) return false; // 漢字
+    return true;
+  }
+
   function wordMatch(text, word) {
     var idx = 0;
-    while (true) {
+    while (idx <= text.length - word.length) {
       var pos = text.indexOf(word, idx);
       if (pos < 0) return false;
-      var after = text.charAt(pos + word.length);
-      // 後ろが活用語尾でない場合のみマッチ
-      // ひらがな（あ行〜わ行）が続く場合は活用形の可能性が高いので除外
-      // ただし「を、は、が、に、で、へ、も、と、の、や、か」などの助詞はOK
-      var JOSHI = "\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3055\u308c";
-      if (after === "" || after === "\u3001" || after === "\u3002" ||
-          after === "\u300d" || after === "\uff09" || after === "\u3000" ||
-          after === " " || after === "\n" || JOSHI.indexOf(after) >= 0) {
-        return true;
-      }
+      var before = text.charAt(pos - 1) || "";
+      var after = text.charAt(pos + word.length) || "";
+      if (isBeforeBoundary(before) && isAfterBoundary(after)) return true;
       idx = pos + 1;
     }
     return false;
@@ -433,14 +459,12 @@ function checkOkurigana(paragraphs) {
     var result = [];
     paragraphs.forEach(function(p, i) {
       var idx2 = 0;
-      while (true) {
+      while (idx2 <= p.length - word.length) {
         var pos = p.indexOf(word, idx2);
         if (pos < 0) break;
-        var after = p.charAt(pos + word.length);
-        var JOSHI = "\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3055\u308c";
-        if (after === "" || after === "\u3001" || after === "\u3002" ||
-            after === "\u300d" || after === "\uff09" || after === "\u3000" ||
-            after === " " || after === "\n" || JOSHI.indexOf(after) >= 0) {
+        var before = p.charAt(pos - 1) || "";
+        var after = p.charAt(pos + word.length) || "";
+        if (isBeforeBoundary(before) && isAfterBoundary(after)) {
           result.push({ word: word, idx: i });
         }
         idx2 = pos + 1;
