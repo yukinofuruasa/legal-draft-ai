@@ -251,8 +251,8 @@ function checkKoyoBun(paragraphs) {
   var jugen = [
     [/諸先生方/g, "諸先生方", "「諸先生」または「先生方」に統一してください"],
     [/各都道府県ごとに/g, "各都道府県ごとに", "「各都道府県で」または「都道府県ごとに」に統一してください"],
-    [/第[0-9０-９一二三四五六七八九十]+日目/g, "第○日目", "「第1日」または「1日目」のどちらかに統一してください"],
-    [/約[0-9０-９0-9]+名くらい/g, "約○名くらい", "「約○名」または「○名くらい」のどちらかに統一してください"],
+    [/第[0-9０-９一二三四五六七八九十]+日目/g, "第N日目", "「第1日」または「1日目」のどちらかに統一してください"],
+    [/約[0-9０-９0-9]+名くらい/g, "約N名くらい", "「約N名」または「N名くらい」のどちらかに統一してください"],
     [/違和感を感じ/g, "違和感を感じる", "「違和感を覚える」または「違和感がある」に言い換えてください"],
     [/被害を被る/g, "被害を被る", "「被害を受ける」に言い換えてください"],
     [/返事を返す/g, "返事を返す", "「返事をする」に言い換えてください"],
@@ -446,9 +446,23 @@ function checkOkuriganaWithWordAPI(paras) {
   var allGroups = groups.concat(kh);
   var text = paras.join(" ");
 
-  // まずJSで「どの語が文書中に存在するか」だけ簡易チェック
+  // まずJSで「名詞形として存在するか」をチェック（助詞・句読点の前のみ）
+  // 語の後が助詞・句読点・文末のみマッチ（活用語尾は除外）
+  var NOUN_AFTER_CHARS = "をはがにでへもとのやか、。」） ";
+  function nounExists(t, w) {
+    var idx = 0;
+    while (idx <= t.length - w.length) {
+      var pos = t.indexOf(w, idx);
+      if (pos < 0) return false;
+      var after = t.charAt(pos + w.length);
+      // 文末 or 助詞・句読点のみOK
+      if (after === "" || NOUN_AFTER_CHARS.indexOf(after) >= 0) return true;
+      idx = pos + 1;
+    }
+    return false;
+  }
   var candidates = allGroups.filter(function(group) {
-    var found = group.filter(function(w) { return text.indexOf(w) >= 0; });
+    var found = group.filter(function(w) { return nounExists(text, w); });
     return found.length > 1;
   });
   if (candidates.length === 0) return;
