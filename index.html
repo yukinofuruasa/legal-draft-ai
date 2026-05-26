@@ -779,7 +779,7 @@ function renderAll() {
           var idxs = wordGroups[word];
           idxs.forEach(function(pidx, pi) {
             yHtml += '<button class="btn-occ" data-idx="' + pidx + '" style="font-size:10px;padding:2px 7px;border:1px solid var(--border);border-radius:100px;background:#fff;cursor:pointer;color:var(--text2)">'
-              + esc(word) + ' → 段落' + (pidx+1) + '</button>';
+              + esc(word) + '</button>';
           });
         });
         // 推奨形への一括修正ボタン
