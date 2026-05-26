@@ -328,19 +328,9 @@ function checkKoyoBun(paragraphs) {
     ["もしくは", "若しくは", "告示・通知等の公用文では「若しくは」が原則です"]
   ];
   setsuZoku.forEach(function(s) {
+    var re = makeWordRe(s[0]);
     paragraphs.forEach(function(t, idx) {
-      // 語境界チェック（「および」の前後が適切な境界か確認）
-      var found = false;
-      var i2 = 0;
-      while (i2 <= t.length - s[0].length) {
-        var pos = t.indexOf(s[0], i2);
-        if (pos < 0) break;
-        var before = t.charAt(pos - 1) || "";
-        var after = t.charAt(pos + s[0].length) || "";
-        if (isBeforeBoundary(before) && isAfterBoundary(after)) { found = true; break; }
-        i2 = pos + 1;
-      }
-      if (found) {
+      if (re.test(t)) {
         issues.push({ sev:"warning", type:"公用文表記", term:s[0],
           desc:"ひらがな「" + s[0] + "」が使われています。" + s[2], idx:idx });
       }
@@ -419,81 +409,28 @@ function checkOkurigana(paragraphs) {
     ["\u7acb\u3066\u66ff\u3048", "\u7acb\u66ff\u3048", "\u7acb\u66ff"],
     ["\u5272\u308a\u5f53\u3066", "\u5272\u5f53\u3066", "\u5272\u5f53"]
   ];
-  // 語境界チェック: 前後が「語の一部」でないかを確認
-  // ひらがなのうち助詞として使われるもの
-  var JOSHI = "\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3055";
-  // 境界文字（これが後ろに来ればOK）
-  function isAfterBoundary(ch) {
-    if (ch === "") return true; // 文末
-    var code = ch.charCodeAt(0);
-    // 句読点・記号・括弧類
-    if (ch === "\u3001" || ch === "\u3002" || ch === "\u300d" || ch === "\u300f" ||
-        ch === "\uff09" || ch === "\u3000" || ch === " " || ch === "\n" ||
-        ch === "\r" || ch === "\t") return true;
-    // 助詞
-    if (JOSHI.indexOf(ch) >= 0) return true;
-    // 全角英数字・半角英数字・漢字・カタカナ（別語が続く場合）
-    if (code >= 0xFF01 && code <= 0xFF60) return true; // 全角記号
-    if (code >= 0x30A0 && code <= 0x30FF) return true; // カタカナ
-    if (code >= 0x4E00 && code <= 0x9FFF) return true; // 漢字
-    if (code >= 0x0021 && code <= 0x007E) return true; // 半角ASCII記号・英数字
-    return false;
-  }
-  // 前の文字も確認（語の途中にマッチしていないか）
-  // 助詞・句読点の後は語頭としてOK
-  var JOSHI_BEFORE = "\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3055\u3001\u3002\u300c\u300e\uff08";
-  function isBeforeBoundary(ch) {
-    if (ch === "") return true; // 文頭
-    // 助詞・句読点・括弧開きの後はOK
-    if (JOSHI_BEFORE.indexOf(ch) >= 0) return true;
-    var code = ch.charCodeAt(0);
-    // その他のひらがな・カタカナ・漢字が前にある場合は語の途中
-    if (code >= 0x3041 && code <= 0x3096) return false; // ひらがな
-    if (code >= 0x30A0 && code <= 0x30FF) return false; // カタカナ
-    if (code >= 0x4E00 && code <= 0x9FFF) return false; // 漢字
-    return true;
+  // 語境界チェック: 正規表現のルックアヘッドで動詞活用形を除外
+  // 許可される後続文字: 助詞・句読点・括弧・文末のみ
+  var NOUN_AFTER = "[\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3001\u3002\u300d\uff09\\s]";
+
+  function makeWordRe(word) {
+    var escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(escaped + "(?=" + NOUN_AFTER + "|$)");
   }
 
   function wordMatch(text, word) {
-    var idx = 0;
-    while (idx <= text.length - word.length) {
-      var pos = text.indexOf(word, idx);
-      if (pos < 0) return false;
-      var before = text.charAt(pos - 1) || "";
-      var after = text.charAt(pos + word.length) || "";
-      if (isBeforeBoundary(before) && isAfterBoundary(after)) return true;
-      idx = pos + 1;
-    }
-    return false;
+    return makeWordRe(word).test(text);
   }
+
   function wordMatchAll(text, word, paragraphs) {
+    var re = makeWordRe(word);
     var result = [];
     paragraphs.forEach(function(p, i) {
-      var idx2 = 0;
-      while (idx2 <= p.length - word.length) {
-        var pos = p.indexOf(word, idx2);
-        if (pos < 0) break;
-        var before = p.charAt(pos - 1) || "";
-        var after = p.charAt(pos + word.length) || "";
-        if (isBeforeBoundary(before) && isAfterBoundary(after)) {
-          result.push({ word: word, idx: i });
-        }
-        idx2 = pos + 1;
-      }
+      if (re.test(p)) result.push({ word: word, idx: i });
     });
     return result;
   }
-  var kh = [
-    ["\u53ca\u3073", "\u304a\u3088\u3073"],
-    ["\u53c8\u306f", "\u307e\u305f\u306f"],
-    ["\u4e26\u3073\u306b", "\u306a\u3089\u3073\u306b"],
-    ["\u82e5\u3057\u304f\u306f", "\u3082\u3057\u304f\u306f"],
-    ["\u4f46\u3057", "\u305f\u3060\u3057"],
-    ["\u76f4\u3061\u306b", "\u305f\u3060\u3061\u306b"],
-    ["\u4e88\u3081", "\u3042\u3089\u304b\u3058\u3081"],
-    ["\u65e2\u306b", "\u3059\u3067\u306b"],
-    ["\u66f4\u306b", "\u3055\u3089\u306b"]
-  ];
+
   function checkGroup(group) {
     var found = group.filter(function(w) { return wordMatch(text, w); });
     if (found.length > 1) {
