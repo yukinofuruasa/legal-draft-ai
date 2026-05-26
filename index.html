@@ -442,7 +442,6 @@ function checkOkurigana(paragraphs) {
             after === "\u300d" || after === "\uff09" || after === "\u3000" ||
             after === " " || after === "\n" || JOSHI.indexOf(after) >= 0) {
           result.push({ word: word, idx: i });
-          break; // 同一段落は1回だけ
         }
         idx2 = pos + 1;
       }
@@ -543,14 +542,15 @@ function jumpTo(idx) {
   }).catch(function() {});
 }
 
-function jumpToWord(word) {
+function jumpToWord(word, occIdx) {
   Word.run(function(ctx) {
     var results = ctx.document.body.search(word, { matchCase: true });
     ctx.load(results, "items");
     return ctx.sync().then(function() {
       if (results.items.length === 0) return;
       results.items.forEach(function(r) { r.font.highlightColor = "#FFF3CD"; });
-      results.items[0].select();
+      var target = results.items[occIdx] || results.items[0];
+      target.select();
       return ctx.sync();
     });
   }).catch(function() {});
@@ -821,17 +821,21 @@ function renderAll() {
       // 出現箇所リンク（語ごとに色分け）
       if (i2.occurrences && i2.occurrences.length > 0) {
         yHtml += '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">';
-        // 語ごとにグループ化
+        // 語ごとにグループ化（Word検索順のインデックスを保持）
         var wordGroups = {};
         i2.occurrences.forEach(function(o) {
           if (!wordGroups[o.word]) wordGroups[o.word] = [];
           wordGroups[o.word].push(o.idx);
         });
+        // 各語のWord検索結果インデックス（全文中の何番目か）をカウント
+        var wordOccCount = {};
         Object.keys(wordGroups).forEach(function(word) {
           var idxs = wordGroups[word];
-          idxs.forEach(function(pidx, pi) {
-            yHtml += '<button class="btn-occ" data-idx="' + pidx + '" data-word="' + esc(word) + '" style="font-size:10px;padding:2px 7px;border:1px solid var(--border);border-radius:100px;background:#fff;cursor:pointer;color:var(--text2)">'
+          idxs.forEach(function(pidx) {
+            var occN = wordOccCount[word] || 0;
+            yHtml += '<button class="btn-occ" data-idx="' + pidx + '" data-word="' + esc(word) + '" data-occ="' + occN + '" style="font-size:10px;padding:2px 7px;border:1px solid var(--border);border-radius:100px;background:#fff;cursor:pointer;color:var(--text2)">'
               + esc(word) + '</button>';
+            wordOccCount[word] = occN + 1;
           });
         });
         // 推奨形への一括修正ボタン
@@ -848,7 +852,7 @@ function renderAll() {
     yureEl.innerHTML = yHtml;
     // 出現箇所ボタン
     yureEl.querySelectorAll(".btn-occ").forEach(function(btn) {
-      btn.addEventListener("click", function() { jumpToWord(btn.dataset.word); });
+      btn.addEventListener("click", function() { jumpToWord(btn.dataset.word, parseInt(btn.dataset.occ || 0)); });
     });
     // 通常ジャンプボタン
     yureEl.querySelectorAll(".btn-j").forEach(function(btn) {
