@@ -94,6 +94,7 @@ body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:va
   <button class="tab on" data-tab="terms">&#23450;&#32681;&#35486;<span class="bdg" id="bdgTerms">0</span></button>
   <button class="tab" data-tab="format">&#26360;&#24335;<span class="bdg" id="bdgFormat">0</span></button>
   <button class="tab" data-tab="consist">&#25972;&#21512;&#24615;<span class="bdg" id="bdgConsist">0</span></button>
+  <button class="tab" data-tab="yure">表記ゆれ<span class="bdg" id="bdgYure">0</span></button>
   <button class="tab" data-tab="egov">e-Gov<span class="bdg" id="bdgLaws">0</span></button>
 </div>
 <div class="content">
@@ -123,6 +124,10 @@ body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:va
     </div>
     <div id="consistList"></div>
   </div>
+  <div class="pane" id="pane-yure" style="display:none">
+    <p class="pdesc" id="yureDesc"></p>
+    <div id="yureList"></div>
+  </div>
   <div class="pane" id="pane-egov" style="display:none">
     <div style="padding:10px 0">
       <div class="egov-search">
@@ -143,7 +148,7 @@ body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:va
 
 var G = {
   paragraphs: [], terms: [], formatIssues: [], consistIssues: [],
-  detectedLaws: [], activeTab: "terms", analyzing: false, fixing: false
+  detectedLaws: [], yureIssues: [], activeTab: "terms", analyzing: false, fixing: false
 };
 
 // ENGINE
@@ -440,7 +445,8 @@ function runAnalysis() {
     G.paragraphs = paras;
     G.terms = extractTerms(paras);
     G.formatIssues = detectFormat(paras);
-    G.consistIssues = checkConsist(paras, G.terms).concat(checkOkurigana(paras));
+    G.consistIssues = checkConsist(paras, G.terms);
+    G.yureIssues = checkOkurigana(paras);
     G.detectedLaws = detectLawNames(paras);
     renderAll();
     document.getElementById("idleState").style.display = "none";
@@ -469,6 +475,7 @@ function renderAll() {
   document.getElementById("sumTerms").textContent = "\u5b9a\u7fa9\u8a9e " + G.terms.length;
   var er = document.getElementById("sumErrors"); er.textContent = "\u30a8\u30e9\u30fc " + errN; er.style.display = errN ? "inline-flex" : "none";
   var wr = document.getElementById("sumWarns"); wr.textContent = "\u8b66\u544a " + wrnN; wr.style.display = wrnN ? "inline-flex" : "none";
+  var yu = document.getElementById("sumYure"); yu.textContent = "表記ゆれ " + G.yureIssues.length; yu.style.display = G.yureIssues.length ? "inline-flex" : "none";
   var lw = document.getElementById("sumLaws"); lw.textContent = "\u6cd5\u4ee4 " + G.detectedLaws.length; lw.style.display = G.detectedLaws.length ? "inline-flex" : "none";
   document.getElementById("bdgTerms").textContent = G.terms.length;
   document.getElementById("bdgFormat").textContent = G.formatIssues.length;
@@ -537,6 +544,29 @@ function renderAll() {
     });
   }
 
+  // Yure tab
+  var yureEl = document.getElementById("yureList");
+  var yureDesc = document.getElementById("yureDesc");
+  document.getElementById("bdgYure").textContent = G.yureIssues.length;
+  if (!G.yureIssues.length) {
+    yureDesc.textContent = "表記ゆれは検出されませんでした。";
+    yureEl.innerHTML = "";
+  } else {
+    yureDesc.textContent = G.yureIssues.length + "件の表記ゆれを検出しました。";
+    var yHtml = "";
+    G.yureIssues.forEach(function(i2) {
+      yHtml += '<div class="ic ic-wrn">'
+        + '<div class="ic-hdr"><span class="ic-type" style="background:var(--amber)">表記ゆれ</span>'
+        + '<span class="ic-term">' + esc(i2.term) + '</span></div>'
+        + '<div class="ic-desc">' + esc(i2.desc) + '</div>'
+        + '<button class="btn-j" data-idx="' + i2.idx + '">該当箇所へ</button></div>';
+    });
+    yureEl.innerHTML = yHtml;
+    yureEl.querySelectorAll(".btn-j").forEach(function(btn) {
+      btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
+    });
+  }
+
   // eGov detected laws
   var dEl = document.getElementById("detectedLaws");
   if (G.detectedLaws.length) {
@@ -559,7 +589,7 @@ function switchTab(id) {
   showPanes();
 }
 function showPanes() {
-  ["terms","format","consist","egov"].forEach(function(id) {
+  ["terms","format","consist","yure","egov"].forEach(function(id) {
     var p = document.getElementById("pane-" + id);
     if (p) p.style.display = G.activeTab === id ? "block" : "none";
   });
