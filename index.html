@@ -606,6 +606,190 @@ function fixYure(issue) {
     showToast("修正エラー: " + (e.message || String(e)));
   });
 }
+
+// ── 条項番号ズレ検出・修正 ──────────────────────────────────
+// ルール: 第N条 > N > (N) > ア > a > (a)
+var ARA = "アイウエオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデト";
+// カタカナ「ア」から順に
+var KANA_LIST = ["ア","イ","ウ","エ","オ","カ","キ","ク","ケ","コ","サ","シ","ス","セ","ソ","タ","チ","ツ","テ","ト","ナ","ニ","ヌ","ネ","ノ"];
+// ひらがな「ア」→ア行
+var HIRA_LIST = ["ア","イ","ウ","エ","オ","カ","キ","ク","ケ","コ","サ","シ","ス","セ","ソ","タ","チ","ツ","テ","ト"];
+
+// 条項パターン定義（レベル順）
+var CLAUSE_PATTERNS = [
+  // 第N条
+  { level: 1, type: "daijo",
+    detect: function(t) {
+      var m = t.match(/^第\s*([０-９0-9]+)\s*条/);
+      return m ? { num: parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); })) } : null;
+    },
+    make: function(n) { return "第" + n + "条"; }
+  },
+  // N（数字のみ行頭）
+  { level: 2, type: "num",
+    detect: function(t) {
+      var m = t.match(/^([０-９0-9]+)[.．\s　]/);
+      return m ? { num: parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); })) } : null;
+    },
+    make: function(n) { return String(n); }
+  },
+  // （N）
+  { level: 3, type: "paren",
+    detect: function(t) {
+      var m = t.match(/^[（\(]([０-９0-9]+)[）\)]/);
+      return m ? { num: parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); })) } : null;
+    },
+    make: function(n) { return "（" + n + "）"; }
+  },
+  // ア「カタカナ単体（括弧なし）
+  { level: 4, type: "kana",
+    detect: function(t) {
+      var m = t.match(/^([ア-ン])[\s　]/);
+      if (!m) return null;
+      var idx = KANA_LIST.indexOf(m[1]);
+      return idx >= 0 ? { num: idx + 1 } : null;
+    },
+    make: function(n) { return KANA_LIST[n-1] || KANA_LIST[0]; }
+  },
+  // （ア）「カタカナ括弧付き
+  { level: 5, type: "kana_paren",
+    detect: function(t) {
+      var m = t.match(/^[（\(]([ア-ン])[）\)]/);
+      if (!m) return null;
+      var idx = KANA_LIST.indexOf(m[1]);
+      return idx >= 0 ? { num: idx + 1 } : null;
+    },
+    make: function(n) { return "（" + (KANA_LIST[n-1] || KANA_LIST[0]) + "）"; }
+  },
+  // a「a-z小文字
+  { level: 6, type: "alpha",
+    detect: function(t) {
+      var m = t.match(/^([a-z])[\s　]/);
+      return m ? { num: m[1].charCodeAt(0) - 96 } : null;
+    },
+    make: function(n) { return String.fromCharCode(96 + n); }
+  },
+  // (a)「括弧付き小文字
+  { level: 7, type: "alpha_paren",
+    detect: function(t) {
+      var m = t.match(/^[（\(]([a-z])[）\)]/);
+      return m ? { num: m[1].charCodeAt(0) - 96 } : null;
+    },
+    make: function(n) { return "（" + String.fromCharCode(96 + n) + "）"; }
+  }
+];
+
+function detectClauseLevel(text) {
+  var t = text.trim();
+  for (var i = 0; i < CLAUSE_PATTERNS.length; i++) {
+    var r = CLAUSE_PATTERNS[i].detect(t);
+    if (r) return { level: CLAUSE_PATTERNS[i].level, type: CLAUSE_PATTERNS[i].type, num: r.num, pattern: CLAUSE_PATTERNS[i] };
+  }
+  return null;
+}
+
+function checkClauseOrder(paragraphs) {
+  var issues = [];
+  // レベルごとのカウンター
+  var counters = { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 };
+  // レベルごとの最終値（上位レベルが変わったら下位をリセット）
+  var lastLevel = 0;
+
+  paragraphs.forEach(function(raw, idx) {
+    var t = raw.trim();
+    if (!t) return;
+    var detected = detectClauseLevel(t);
+    if (!detected) return;
+
+    var lv = detected.level;
+    // 上位レベルが変わったら下位カウンターをリセット
+    if (lv < lastLevel) {
+      for (var l = lv + 1; l <= 7; l++) counters[l] = 0;
+    }
+    // 上位レベルが初出なら下位をリセット
+    if (lv > 1 && lv < lastLevel) {
+      for (var l2 = lv + 1; l2 <= 7; l2++) counters[l2] = 0;
+    }
+
+    counters[lv]++;
+    var expected = counters[lv];
+    var actual = detected.num;
+
+    if (actual !== expected) {
+      var expectedStr = detected.pattern.make(expected);
+      issues.push({
+        idx: idx,
+        level: lv,
+        type: detected.type,
+        actual: actual,
+        expected: expected,
+        expectedStr: expectedStr,
+        text: t.slice(0, 40),
+        sev: "error",
+        issueType: "条項番号ズレ",
+        term: t.slice(0, 15),
+        desc: "条項番号が不連続です。" + actual + " → " + expected + " (「" + expectedStr + "」が期待されます)"
+      });
+    }
+    lastLevel = lv;
+  });
+  return issues;
+}
+
+function fixClauseOrder() {
+  if (G.fixing) return;
+  G.fixing = true;
+  var btn = document.getElementById("btnFixClause");
+  btn.disabled = true;
+  btn.textContent = "修正中...";
+
+  Word.run(function(ctx) {
+    var ps = ctx.document.body.paragraphs;
+    ctx.load(ps, "text");
+    return ctx.sync().then(function() {
+      var counters = { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 };
+      var lastLevel = 0;
+      var fixed = 0;
+
+      for (var i = 0; i < ps.items.length; i++) {
+        var t = ps.items[i].text.trim();
+        if (!t) continue;
+        var detected = detectClauseLevel(t);
+        if (!detected) continue;
+
+        var lv = detected.level;
+        if (lv < lastLevel) {
+          for (var l = lv + 1; l <= 7; l++) counters[l] = 0;
+        }
+        counters[lv]++;
+        var expected = counters[lv];
+        var actual = detected.num;
+
+        if (actual !== expected) {
+          var expectedStr = detected.pattern.make(expected);
+          // 行頭の番号部分を置換
+          var newText = ps.items[i].text.replace(
+            ps.items[i].text.trim().slice(0, detected.pattern.make(actual).length),
+            expectedStr
+          );
+          ps.items[i].insertText(newText, "Replace");
+          fixed++;
+        }
+        lastLevel = lv;
+      }
+      return ctx.sync().then(function() { return fixed; });
+    });
+  }).then(function(fixed) {
+    showToast(fixed + "箇所の条項番号を修正しました");
+    if (fixed > 0) runAnalysis();
+  }).catch(function(e) {
+    showToast("修正エラー: " + (e.message || String(e)));
+  }).finally(function() {
+    G.fixing = false;
+    btn.disabled = false;
+    btn.textContent = "条項一括修正";
+  });
+}
 function applyFix() {
   if (G.fixing) return;
   G.fixing = true;
@@ -710,7 +894,7 @@ function runAnalysis() {
     G.paragraphs = paras;
     G.terms = extractTerms(paras);
     G.formatIssues = detectFormat(paras);
-    G.consistIssues = checkConsist(paras, G.terms);
+    G.consistIssues = checkConsist(paras, G.terms).concat(checkClauseOrder(paras));
     G.yureIssues = checkJisX0213(paras).concat(checkKoyoBun(paras));
     G.detectedLaws = detectLawNames(paras);
     renderAll();
@@ -922,6 +1106,7 @@ Office.onReady(function(info) {
   document.getElementById("btnAnalyze").addEventListener("click", runAnalysis);
   document.getElementById("btnHL").addEventListener("click", clearHL);
   document.getElementById("btnFix").addEventListener("click", applyFix);
+  document.getElementById("btnFixClause").addEventListener("click", fixClauseOrder);
   document.getElementById("btnSearch").addEventListener("click", searchLaw);
   document.getElementById("egovInput").addEventListener("keydown", function(e) { if (e.key === "Enter") searchLaw(); });
   document.querySelectorAll(".tab").forEach(function(t) {
