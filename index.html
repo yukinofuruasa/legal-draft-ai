@@ -543,6 +543,19 @@ function jumpTo(idx) {
   }).catch(function() {});
 }
 
+function jumpToWord(word) {
+  Word.run(function(ctx) {
+    var results = ctx.document.body.search(word, { matchCase: true });
+    ctx.load(results, "items");
+    return ctx.sync().then(function() {
+      if (results.items.length === 0) return;
+      results.items.forEach(function(r) { r.font.highlightColor = "#FFF3CD"; });
+      results.items[0].select();
+      return ctx.sync();
+    });
+  }).catch(function() {});
+}
+
 
 function fixYure(issue) {
   if (!issue.occurrences || !issue.recommended) return;
@@ -817,7 +830,7 @@ function renderAll() {
         Object.keys(wordGroups).forEach(function(word) {
           var idxs = wordGroups[word];
           idxs.forEach(function(pidx, pi) {
-            yHtml += '<button class="btn-occ" data-idx="' + pidx + '" style="font-size:10px;padding:2px 7px;border:1px solid var(--border);border-radius:100px;background:#fff;cursor:pointer;color:var(--text2)">'
+            yHtml += '<button class="btn-occ" data-idx="' + pidx + '" data-word="' + esc(word) + '" style="font-size:10px;padding:2px 7px;border:1px solid var(--border);border-radius:100px;background:#fff;cursor:pointer;color:var(--text2)">'
               + esc(word) + '</button>';
           });
         });
@@ -835,7 +848,7 @@ function renderAll() {
     yureEl.innerHTML = yHtml;
     // 出現箇所ボタン
     yureEl.querySelectorAll(".btn-occ").forEach(function(btn) {
-      btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
+      btn.addEventListener("click", function() { jumpToWord(btn.dataset.word); });
     });
     // 通常ジャンプボタン
     yureEl.querySelectorAll(".btn-j").forEach(function(btn) {
