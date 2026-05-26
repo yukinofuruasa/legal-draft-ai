@@ -87,6 +87,7 @@ body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:va
   <span class="pill pill-b" id="sumTerms">&#23450;&#32681;&#35486; 0</span>
   <span class="pill pill-r" id="sumErrors" style="display:none">&#12456;&#12521;&#12540; 0</span>
   <span class="pill pill-a" id="sumWarns" style="display:none">&#35686;&#21578; 0</span>
+  <span class="pill pill-r" id="sumClause" style="display:none">条項ズレ 0</span>
   <span class="pill pill-a" id="sumYure" style="display:none">表記ゆれ 0</span>
   <span class="pill pill-g" id="sumLaws" style="display:none">&#27861;&#20551; 0</span>
   <button class="btn-xs" id="btnHL">HL&#35299;&#38500;</button>
@@ -129,6 +130,17 @@ body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:va
     <p class="pdesc" id="yureDesc"></p>
     <div id="yureList"></div>
   </div>
+  <div class="pane" id="pane-clause" style="display:none">
+    <div class="arow">
+      <p class="pdesc" id="clauseDesc"></p>
+      <button class="btn-fix" id="btnFixClause2" style="background:#0891b2">条項一括修正</button>
+    </div>
+    <div id="clauseList"></div>
+  </div>
+  <div class="pane" id="pane-toc" style="display:none">
+    <p class="pdesc">文書内の条項構成です。クリックで該当箇所へじゃんぷできます。</p>
+    <div id="tocList"></div>
+  </div>
   <div class="pane" id="pane-egov" style="display:none">
     <div style="padding:10px 0">
       <div class="egov-search">
@@ -146,7 +158,7 @@ body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:va
 
 var G = {
   paragraphs: [], terms: [], formatIssues: [], consistIssues: [],
-  detectedLaws: [], yureIssues: [], activeTab: "terms", analyzing: false, fixing: false
+  detectedLaws: [], yureIssues: [], clauseIssues: [], activeTab: "terms", analyzing: false, fixing: false
 };
 
 // ENGINE
@@ -688,6 +700,24 @@ function detectClauseLevel(text) {
   return null;
 }
 
+
+function buildToc(paragraphs) {
+  var items = [];
+  paragraphs.forEach(function(raw, idx) {
+    var t = raw.trim();
+    if (!t) return;
+    // 第N条 → レベル1
+    var m1 = t.match(/^第\s*([０-９0-9]+)\s*条([\s　（「].*)?/);
+    if (m1) { items.push({ level:1, text:t.slice(0,40), idx:idx }); return; }
+    // N. または N　 → レベル2
+    var m2 = t.match(/^([０-９0-9]+)[.．\s　](.{0,30})/);
+    if (m2) { items.push({ level:2, text:t.slice(0,40), idx:idx }); return; }
+    // （N） → レベル3
+    var m3 = t.match(/^[（\(][０-９0-9]+[）\)]/);
+    if (m3) { items.push({ level:3, text:t.slice(0,40), idx:idx }); return; }
+  });
+  return items;
+}
 function checkClauseOrder(paragraphs) {
   var issues = [];
   // レベルごとのカウンター
@@ -894,7 +924,8 @@ function runAnalysis() {
     G.paragraphs = paras;
     G.terms = extractTerms(paras);
     G.formatIssues = detectFormat(paras);
-    G.consistIssues = checkConsist(paras, G.terms).concat(checkClauseOrder(paras));
+    G.consistIssues = checkConsist(paras, G.terms);
+    G.clauseIssues = checkClauseOrder(paras);
     G.yureIssues = checkJisX0213(paras).concat(checkKoyoBun(paras));
     G.detectedLaws = detectLawNames(paras);
     renderAll();
@@ -924,6 +955,8 @@ function renderAll() {
   document.getElementById("sumTerms").textContent = "\u5b9a\u7fa9\u8a9e " + G.terms.length;
   var er = document.getElementById("sumErrors"); er.textContent = "\u30a8\u30e9\u30fc " + errN; er.style.display = errN ? "inline-flex" : "none";
   var wr = document.getElementById("sumWarns"); wr.textContent = "\u8b66\u544a " + wrnN; wr.style.display = wrnN ? "inline-flex" : "none";
+  var cl = document.getElementById("sumClause"); cl.textContent = "条項ズレ " + G.clauseIssues.length; cl.style.display = G.clauseIssues.length ? "inline-flex" : "none";
+  document.getElementById("bdgClause").textContent = G.clauseIssues.length;
   var yu = document.getElementById("sumYure"); yu.textContent = "表記ゆれ " + G.yureIssues.length; yu.style.display = G.yureIssues.length ? "inline-flex" : "none";
   var lw = document.getElementById("sumLaws"); lw.textContent = "\u6cd5\u4ee4 " + G.detectedLaws.length; lw.style.display = G.detectedLaws.length ? "inline-flex" : "none";
   document.getElementById("bdgTerms").textContent = G.terms.length;
@@ -1066,6 +1099,53 @@ function renderAll() {
     });
   }
 
+  // 条項タブ
+  var clauseEl = document.getElementById("clauseList");
+  var clauseDesc = document.getElementById("clauseDesc");
+  document.getElementById("bdgClause").textContent = G.clauseIssues.length;
+  if (!G.clauseIssues.length) {
+    clauseDesc.textContent = "条項番号のズレは検出されませんでした。";
+    clauseEl.innerHTML = "";
+  } else {
+    clauseDesc.textContent = G.clauseIssues.length + "箇所の条項番号ズレを検出しました。";
+    var cHtml = "";
+    G.clauseIssues.forEach(function(i2) {
+      cHtml += '<div class="ic ic-err">'
+        + '<div class="ic-hdr"><span class="ic-type" style="background:var(--red)">条項ズレ</span>'
+        + '<span class="ic-term">' + esc(i2.term) + '</span></div>'
+        + '<div class="ic-desc">' + esc(i2.desc) + '</div>'
+        + '<button class="btn-j" data-idx="' + i2.idx + '">該当箇所へ</button></div>';
+    });
+    clauseEl.innerHTML = cHtml;
+    clauseEl.querySelectorAll(".btn-j").forEach(function(btn) {
+      btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
+    });
+  }
+
+  // 目次タブ
+  var tocEl = document.getElementById("tocList");
+  var tocItems = buildToc(G.paragraphs);
+  if (!tocItems.length) {
+    tocEl.innerHTML = '<div class="empty">条項構成が検出できませんでした。</div>';
+  } else {
+    var tHtml = "";
+    tocItems.forEach(function(item) {
+      var indent = (item.level - 1) * 14;
+      var color = item.level === 1 ? "var(--accent)" : item.level === 2 ? "var(--text)" : "var(--t2)";
+      var size = item.level === 1 ? "13px" : item.level === 2 ? "12px" : "11px";
+      var weight = item.level === 1 ? "700" : item.level === 2 ? "600" : "400";
+      var border = item.level === 1 ? "border-top:1px solid var(--border);margin-top:6px;padding-top:6px;" : "";
+      tHtml += '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;' + border + '">'
+        + '<div style="width:' + indent + 'px;flex-shrink:0"></div>'
+        + '<button style="text-align:left;background:none;border:none;cursor:pointer;color:' + color + ';font-size:' + size + ';font-weight:' + weight + ';flex:1;padding:2px 4px;border-radius:3px;line-height:1.4" data-idx="' + item.idx + '">'
+        + esc(item.text) + '</button></div>';
+    });
+    tocEl.innerHTML = tHtml;
+    tocEl.querySelectorAll("button[data-idx]").forEach(function(btn) {
+      btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
+    });
+  }
+
   // eGov detected laws
   var dEl = document.getElementById("detectedLaws");
   if (G.detectedLaws.length) {
@@ -1088,7 +1168,7 @@ function switchTab(id) {
   showPanes();
 }
 function showPanes() {
-  ["terms","format","consist","yure","egov"].forEach(function(id) {
+  ["terms","format","consist","yure","clause","toc","egov"].forEach(function(id) {
     var p = document.getElementById("pane-" + id);
     if (p) p.style.display = G.activeTab === id ? "block" : "none";
   });
@@ -1107,6 +1187,7 @@ Office.onReady(function(info) {
   document.getElementById("btnHL").addEventListener("click", clearHL);
   document.getElementById("btnFix").addEventListener("click", applyFix);
   document.getElementById("btnFixClause").addEventListener("click", fixClauseOrder);
+  document.getElementById("btnFixClause2").addEventListener("click", fixClauseOrder);
   document.getElementById("btnSearch").addEventListener("click", searchLaw);
   document.getElementById("egovInput").addEventListener("keydown", function(e) { if (e.key === "Enter") searchLaw(); });
   document.querySelectorAll(".tab").forEach(function(t) {
