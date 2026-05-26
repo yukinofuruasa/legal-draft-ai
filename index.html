@@ -396,6 +396,26 @@ function checkJisX0213(paragraphs) {
     var k = i.term+":"+i.idx; if(seen[k]) return false; seen[k]=true; return true;
   });
 }
+var NOUN_AFTER = "[\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3001\u3002\u300d\uff09\\s]";
+
+function makeWordRe(word) {
+  var escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(escaped + "(?=" + NOUN_AFTER + "|$)");
+}
+
+function wordMatch(text, word) {
+  return makeWordRe(word).test(text);
+}
+
+function wordMatchAll(text, word, paragraphs) {
+  var re = makeWordRe(word);
+  var result = [];
+  paragraphs.forEach(function(p, i) {
+    if (re.test(p)) result.push({ word: word, idx: i });
+  });
+  return result;
+}
+
 function checkOkurigana(paragraphs) {
   var issues = [];
   var text = paragraphs.join(" ");
@@ -409,28 +429,6 @@ function checkOkurigana(paragraphs) {
     ["\u7acb\u3066\u66ff\u3048", "\u7acb\u66ff\u3048", "\u7acb\u66ff"],
     ["\u5272\u308a\u5f53\u3066", "\u5272\u5f53\u3066", "\u5272\u5f53"]
   ];
-  // 語境界チェック: 正規表現のルックアヘッドで動詞活用形を除外
-  // 許可される後続文字: 助詞・句読点・括弧・文末のみ
-  var NOUN_AFTER = "[\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3001\u3002\u300d\uff09\\s]";
-
-  function makeWordRe(word) {
-    var escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return new RegExp(escaped + "(?=" + NOUN_AFTER + "|$)");
-  }
-
-  function wordMatch(text, word) {
-    return makeWordRe(word).test(text);
-  }
-
-  function wordMatchAll(text, word, paragraphs) {
-    var re = makeWordRe(word);
-    var result = [];
-    paragraphs.forEach(function(p, i) {
-      if (re.test(p)) result.push({ word: word, idx: i });
-    });
-    return result;
-  }
-
   function checkGroup(group) {
     var found = group.filter(function(w) { return wordMatch(text, w); });
     if (found.length > 1) {
