@@ -374,14 +374,21 @@ function runDemoAnalysis() {
 // office.js ロード失敗 → office-unavailable イベントで起動
 // どちらでもなければ load イベントで起動
 var _inited = false;
-function _init(){ if(!_inited){ _inited=true; initApp(); } }
+function _init(info){
+  if(_inited) return;
+  _inited = true;
+  // Word以外のホスト（ブラウザ直接）でもinitAppを呼ぶ
+  initApp();
+}
 
-if (typeof Office !== 'undefined' && Office && Office.onReady) {
-  Office.onReady(_init);
+if (typeof Office !== "undefined" && Office && typeof Office.onReady === "function") {
+  Office.onReady(function(info){
+    _init(info);
+  });
 } else {
-  window.addEventListener('office-unavailable', _init);
-  window.addEventListener('load', function(){
-    setTimeout(function(){ _init(); }, 800);
+  window.addEventListener("office-unavailable", function(){ _init({}); });
+  window.addEventListener("load", function(){
+    setTimeout(function(){ _init({}); }, 1000);
   });
 }
 
@@ -531,12 +538,17 @@ function detectLawNames(paragraphs) {
 // WORD API
 // ═══════════════════════════════════════════════════════════
 async function getParagraphs() {
-  return Word.run(async ctx => {
-    const ps = ctx.document.body.paragraphs;
-    ps.load('text');
-    await ctx.sync();
-    return ps.items.map(p => p.text);
-  });
+  try {
+    return await Word.run(async ctx => {
+      const ps = ctx.document.body.paragraphs;
+      ps.load("text");
+      await ctx.sync();
+      return ps.items.map(p => p.text);
+    });
+  } catch(e) {
+    console.warn("getParagraphs error:", e);
+    return [];
+  }
 }
 
 async function highlightTerms(terms) {
@@ -774,7 +786,8 @@ async function runAnalysis() {
     const wrnN = G.consistIssues.filter(i => i.sev === 'warning').length + G.formatIssues.length;
     toast(`分析完了: 定義語${G.terms.length}件 / 問題${errN+wrnN}件 / 法令${G.detectedLaws.length}件`);
   } catch(e) {
-    toast('エラー: ' + (e.message || String(e)));
+    console.error("Analysis error:", e);
+    toast("Word文書を開いた状態で分析してください");
   } finally {
     G.analyzing = false;
     btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6 3v3l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> 今すぐ分析`;
