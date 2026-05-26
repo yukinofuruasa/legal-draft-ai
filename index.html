@@ -605,20 +605,6 @@ function showToast(msg) {
 
 // INIT
 Office.onReady(function(info) {
-  // Word内かブラウザか判定
-  var isWord = info && info.host === "Word";
-  if (!isWord) {
-    // ブラウザモード: テキスト貼り付けエリアを表示
-    document.getElementById("browserInput").style.display = "block";
-    document.getElementById("idleMsg").textContent = "契約書のテキストを貿り付けて分析できます";
-    document.getElementById("btnAnalyze").style.display = "none";
-    document.getElementById("btnPasteAnalyze").addEventListener("click", function() {
-      var text = document.getElementById("pasteArea").value.trim();
-      if (!text) { showToast("テキストを貿り付けてください"); return; }
-      var paras = text.split(String.fromCharCode(10)).filter(function(l) { return l.trim(); });
-      runAnalysisWithParagraphs(paras);
-    });
-  }
   document.getElementById("btnAnalyze").addEventListener("click", runAnalysis);
   document.getElementById("btnHL").addEventListener("click", clearHL);
   document.getElementById("btnFix").addEventListener("click", applyFix);
