@@ -242,6 +242,132 @@ function checkConsist(paragraphs, terms) {
 }
 
 
+
+function checkKoyoBun(paragraphs) {
+  var issues = [];
+  var text = paragraphs.join(" ");
+
+  // 1. 重言（意味の重複表現）
+  var jugen = [
+    [/諸先生方/g, "諸先生方", "「諸先生」または「先生方」に統一してください"],
+    [/各都道府県ごとに/g, "各都道府県ごとに", "「各都道府県で」または「都道府県ごとに」に統一してください"],
+    [/第[0-9０-９一二三四五六七八九十]+日目/g, "第○日目", "「第1日」または「1日目」のどちらかに統一してください"],
+    [/約[0-9０-９0-9]+名くらい/g, "約○名くらい", "「約○名」または「○名くらい」のどちらかに統一してください"],
+    [/違和感を感じ/g, "違和感を感じる", "「違和感を覚える」または「違和感がある」に言い換えてください"],
+    [/被害を被る/g, "被害を被る", "「被害を受ける」に言い換えてください"],
+    [/返事を返す/g, "返事を返す", "「返事をする」に言い換えてください"],
+    [/まず最初に/g, "まず最初に", "「まず」または「最初に」のどちらかに統一してください"],
+    [/従来から/g, "従来から", "「従来」のみで十分です（「から」は不要）"]
+  ];
+  jugen.forEach(function(j) {
+    paragraphs.forEach(function(t, idx) {
+      if (j[0].test(t)) {
+        j[0].lastIndex = 0;
+        issues.push({ sev:"warning", type:"重言", term:j[1], desc:"重言表現「" + j[1] + "」が含まれています。" + j[2], idx:idx });
+      }
+      j[0].lastIndex = 0;
+    });
+  });
+
+  // 2. 冗長表現（公用文改善）
+  var jocho = [
+    [/利用することができる/g, "利用することができる", "「利用できる」に簡潔化できます"],
+    [/調査を実施した/g, "調査を実施した", "「調査した」に簡潔化できます"],
+    [/対応を行った/g, "対応を行った", "「対応した」に簡潔化できます"],
+    [/検討を行う/g, "検討を行う", "「検討する」に簡潔化できます"],
+    [/問題があるということになる/g, "問題があるということになる", "「問題がある」に簡潔化できます"],
+    [/支援を行っている/g, "支援を行っている", "「支援している」に簡潔化できます"]
+  ];
+  jocho.forEach(function(j) {
+    paragraphs.forEach(function(t, idx) {
+      j[0].lastIndex = 0;
+      if (j[0].test(t)) {
+        j[0].lastIndex = 0;
+        issues.push({ sev:"warning", type:"冗長表現", term:j[1], desc:"「" + j[1] + "」は冠長です。" + j[2], idx:idx });
+      }
+    });
+  });
+
+  // 3. 曖昧語
+  var aimai = [
+    "幾つか", "多少", "多め", "少なめ",
+    "早めに", "少しでも早めに", "可及的速やかに",
+    "喜んで且つの課題", "少人数", "多数"
+  ];
+  aimai.forEach(function(w) {
+    paragraphs.forEach(function(t, idx) {
+      if (t.indexOf(w) >= 0) {
+        issues.push({ sev:"warning", type:"曘昧表現", term:w,
+          desc:"「" + w + "」は曘昧な表現です。具体的な数字や期限を示すことを検討してください", idx:idx });
+      }
+    });
+  });
+
+  // 4. 二重否定
+  var nijuHitei = [
+    [/しないわけではない/g, "しないわけではない", "「することもある」に言い換えてください"],
+    [/できないわけではない/g, "できないわけではない", "「できることもある」に言い換えてください"],
+    [/なくはない/g, "なくはない", "「必要である」など、肯定形に言い換えてください"],
+    [/ではないことはない/g, "ではないことはない", "肯定形に言い換えてください"]
+  ];
+  nijuHitei.forEach(function(j) {
+    paragraphs.forEach(function(t, idx) {
+      j[0].lastIndex = 0;
+      if (j[0].test(t)) {
+        j[0].lastIndex = 0;
+        issues.push({ sev:"warning", type:"二重否定", term:j[1], desc:"二重否定「" + j[1] + "」は分かりにくいです。" + j[2], idx:idx });
+      }
+    });
+  });
+
+  // 5. 接続詞の表記ゆれ（告示・通知文書向け）
+  var setsuZoku = [
+    ["および", "及び", "告示・通知等の公用文では「及び」が原則です"],
+    ["または", "又は", "告示・通知等の公用文では「又は」が原則です"],
+    ["ならびに", "並びに", "告示・通知等の公用文では「並びに」が原則です"],
+    ["もしくは", "若しくは", "告示・通知等の公用文では「若しくは」が原則です"]
+  ];
+  setsuZoku.forEach(function(s) {
+    paragraphs.forEach(function(t, idx) {
+      if (t.indexOf(s[0]) >= 0) {
+        issues.push({ sev:"warning", type:"公用文表記", term:s[0],
+          desc:"ひらがな「" + s[0] + "」が使われています。" + s[2], idx:idx });
+      }
+    });
+  });
+
+  // 6. するべき → すべき
+  paragraphs.forEach(function(t, idx) {
+    if (/するべき/.test(t)) {
+      issues.push({ sev:"warning", type:"公用文表記", term:"するべき",
+        desc:"「するべき」は「すべき」に統一してください（公用文の原則）", idx:idx });
+    }
+  });
+
+  // 7. 可及的速やかに / 喫緊の課題 などの行政特有難解語
+  var nankai = [
+    ["可及的速やかに", "「できる限り早く」に言い換えてください"],
+    ["喜んで且つの課題", "「すぐに対応すべき重要な課題」に言い換えてください"],
+    ["従前どおり", "「これまでどおり」に言い換えてください"],
+    ["鵜緊の課題", "「すぐに対応すべき重要な課題」に言い換えてください"],
+    ["遠滙なく", "「正当な理由のない限り即座に」の意味です。必要に応じて説明を追加してください"]
+  ];
+  nankai.forEach(function(n) {
+    paragraphs.forEach(function(t, idx) {
+      if (t.indexOf(n[0]) >= 0) {
+        issues.push({ sev:"warning", type:"難解行政用語", term:n[0],
+          desc:"「" + n[0] + "」は一般読者にわかりにくい行政用語です。" + n[1], idx:idx });
+      }
+    });
+  });
+
+  // 重複排除
+  var seen = {};
+  return issues.filter(function(i) {
+    var k = i.type + ":" + i.term + ":" + i.idx;
+    if (seen[k]) return false; seen[k] = true; return true;
+  });
+}
 function checkJisX0213(paragraphs) {
   var issues = [];
   paragraphs.forEach(function(text, idx) {
@@ -472,7 +598,7 @@ function runAnalysis() {
     G.terms = extractTerms(paras);
     G.formatIssues = detectFormat(paras);
     G.consistIssues = checkConsist(paras, G.terms);
-    G.yureIssues = checkOkurigana(paras).concat(checkJisX0213(paras));
+    G.yureIssues = checkOkurigana(paras).concat(checkJisX0213(paras)).concat(checkKoyoBun(paras));
     G.detectedLaws = detectLawNames(paras);
     renderAll();
     document.getElementById("idleState").style.display = "none";
