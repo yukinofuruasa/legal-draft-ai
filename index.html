@@ -419,6 +419,9 @@ function wordMatchAll(text, word, paragraphs) {
 
 // Word APIを使った正確な送り仮名チェック
 function checkOkuriganaWithWordAPI(paras) {
+  // 各グループ: [語1, 語2, ...] の形式
+  // Word APIのワイルドカードで「語の後に助詞・句読点が来る場合」のみ検索
+  var AFTER_CHARS = "[をはがにでへもとのやか、。」） ]";
   var groups = [
     ["取り消し", "取消し", "取消"],
     ["申し込み", "申込み", "申込"],
@@ -456,7 +459,15 @@ function checkOkuriganaWithWordAPI(paras) {
     candidates.forEach(function(group) {
       group.forEach(function(word) {
         if (text.indexOf(word) >= 0) {
-          var r = ctx.document.body.search(word, { matchCase: true, matchWholeWord: false });
+          // ワイルドカード: 語の後に助詞・句読点・括弧が来る場合のみマッチ
+          var pattern = word + AFTER_CHARS;
+          var r;
+          try {
+            r = ctx.document.body.search(pattern, { matchCase: true, matchWildcards: true });
+          } catch(e) {
+            // ワイルドカード失敗時は通常検索
+            r = ctx.document.body.search(word, { matchCase: true });
+          }
           ctx.load(r, "items/text");
           searches.push({ word: word, group: group, results: r });
         }
