@@ -696,9 +696,24 @@ var CLAUSE_PATTERNS = [
 
 function detectClauseLevel(text) {
   var t = text.trim();
+  if (!t) return null;
+
   for (var i = 0; i < CLAUSE_PATTERNS.length; i++) {
     var r = CLAUSE_PATTERNS[i].detect(t);
-    if (r) return { level: CLAUSE_PATTERNS[i].level, type: CLAUSE_PATTERNS[i].type, num: r.num, pattern: CLAUSE_PATTERNS[i] };
+    if (!r) continue;
+
+    // 条項番号の後に続くテキストを確認
+    var numStr = CLAUSE_PATTERNS[i].make(r.num);
+    var rest = t.slice(numStr.length).trim();
+
+    // NGパターン: 条項番号の後に「の」「に」「は」「が」「を」「で」などの助詞が続く場合
+    // → 文中参照（「第1条の規定により」など）
+    if (/^[のにはがをでへもとから]/.test(rest)) continue;
+
+    // NGパターン: 条項番号の後に「規定」「定め」「基づき」などが続く場合
+    if (/^(規定|定め|基づ|より|として|という|となる)/.test(rest)) continue;
+
+    return { level: CLAUSE_PATTERNS[i].level, type: CLAUSE_PATTERNS[i].type, num: r.num, pattern: CLAUSE_PATTERNS[i] };
   }
   return null;
 }
