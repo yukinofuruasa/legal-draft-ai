@@ -540,14 +540,28 @@ function detectLawNames(paragraphs) {
 async function getParagraphs() {
   try {
     return await Word.run(async ctx => {
-      const ps = ctx.document.body.paragraphs;
-      ps.load("text");
+      const body = ctx.document.body;
+      const ps = body.paragraphs;
+      context = ctx;
+      ps.load("items/text");
       await ctx.sync();
-      return ps.items.map(p => p.text);
+      return ps.items.map(function(p){ return p.text || ""; });
     });
   } catch(e) {
-    console.warn("getParagraphs error:", e);
-    return [];
+    console.warn("getParagraphs error:", e.message);
+    // フォールバック: body.text を改行で分割
+    try {
+      return await Word.run(async ctx => {
+        const body = ctx.document.body;
+        body.load("text");
+        await ctx.sync();
+        return body.text.split("
+").filter(function(t){ return t.trim(); });
+      });
+    } catch(e2) {
+      console.error("fallback error:", e2.message);
+      return [];
+    }
   }
 }
 
@@ -556,7 +570,7 @@ async function highlightTerms(terms) {
     for (const t of terms) {
       try {
         const res = ctx.document.body.search(`「${t.term}」`, { matchCase: true });
-        res.load('items');
+        res.load('items/text');
         await ctx.sync();
         res.items.forEach(r => { r.font.highlightColor = '#FFF3CD'; });
         await ctx.sync();
@@ -572,7 +586,7 @@ async function highlightErrors(issues) {
       try {
         const q = `「${i.term}」`;
         const res = ctx.document.body.search(q, { matchCase: false });
-        res.load('items');
+        res.load('items/text');
         await ctx.sync();
         const color = i.sev === 'error' ? '#FFCCCC' : '#FFF0CC';
         res.items.forEach(r => { r.font.highlightColor = color; });
@@ -594,7 +608,7 @@ async function jumpTo(idx) {
   try {
     await Word.run(async ctx => {
       const ps = ctx.document.body.paragraphs;
-      ps.load('text');
+      ps.load('items/text');
       await ctx.sync();
       if (idx < ps.items.length) {
         ps.items[idx].select();
@@ -613,7 +627,7 @@ async function applyFix() {
     let fixed = 0;
     await Word.run(async ctx => {
       const ps = ctx.document.body.paragraphs;
-      ps.load('text');
+      ps.load('items/text');
       await ctx.sync();
       let artN = 0, listN = 0;
       for (const p of ps.items) {
