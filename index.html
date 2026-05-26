@@ -4,20 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>LegalDraft AI</title>
-<script>
-// office.js を非同期で読み込み、失敗してもアプリを起動する
-(function(){
-  var s = document.createElement('script');
-  s.src = 'https://appsforoffice.microsoft.com/lib/1/hosted/office.js';
-  s.onload = function(){ /* Office.onReady が自動で走る */ };
-  s.onerror = function(){
-    // office.js が読めない = ブラウザ直接表示モード
-    window.Office = null;
-    window.dispatchEvent(new Event('office-unavailable'));
-  };
-  document.head.appendChild(s);
-})();
-</script>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -373,24 +360,10 @@ function runDemoAnalysis() {
 // office.js ロード成功 → Office.onReady で起動
 // office.js ロード失敗 → office-unavailable イベントで起動
 // どちらでもなければ load イベントで起動
-var _inited = false;
-function _init(info){
-  if(_inited) return;
-  _inited = true;
-  // Word以外のホスト（ブラウザ直接）でもinitAppを呼ぶ
+// Office.onReady で確実に初期化
+Office.onReady(function(info){
   initApp();
-}
-
-if (typeof Office !== "undefined" && Office && typeof Office.onReady === "function") {
-  Office.onReady(function(info){
-    _init(info);
-  });
-} else {
-  window.addEventListener("office-unavailable", function(){ _init({}); });
-  window.addEventListener("load", function(){
-    setTimeout(function(){ _init({}); }, 1000);
-  });
-}
+});
 
 // ═══════════════════════════════════════════════════════════
 // ENGINE — 定義語検出
