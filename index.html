@@ -396,6 +396,33 @@ function checkJisX0213(paragraphs) {
     var k = i.term+":"+i.idx; if(seen[k]) return false; seen[k]=true; return true;
   });
 }
+function checkJisX0213(paragraphs) {
+  var issues = [];
+  paragraphs.forEach(function(text, idx) {
+    if (/[･-ﾟ]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"半角カタカナ",
+        desc:"半角カタカナが含まれています。法律文書では全角を使用してください", idx:idx });
+    if (/〜/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"〜",
+        desc:"〜(波ダッシュ)は環境により化ける可能性があります。～または2015への変更を検討してください", idx:idx });
+    if (/[-]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"PUA",
+        desc:"私用領域(PUA)の文字が含まれています。環境により表示できない場合があります", idx:idx });
+    if (/[Ⅰ-ⅿ]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"ローマ数字",
+        desc:"特殊ローマ数字(ⅠⅡⅢⅣⅤⅥ)が含まれています。漢数字またはアラビア数字の使用を検討してください", idx:idx });
+    if (/[①-⑳]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"丸数字",
+        desc:"丸数字(①②③...)が含まれています。環境依存文字のため印刷・フォントにより表示できない場合があります", idx:idx });
+    if (/[︀-️]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"異体字",
+        desc:"異体字セレクタが含まれています。法律文書では使用を锱けてください", idx:idx });
+  });
+  var seen = {};
+  return issues.filter(function(i) {
+    var k = i.term+":"+i.idx; if(seen[k]) return false; seen[k]=true; return true;
+  });
+}
 var NOUN_AFTER = "[\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3001\u3002\u300d\uff09 ]";
 
 function makeWordRe(word) {
@@ -415,197 +442,78 @@ function wordMatchAll(text, word, paragraphs) {
   });
   return result;
 }
-
-
-// Word APIを使った正確な送り仮名チェック
-function checkOkuriganaWithWordAPI(paras) {
-  // 各グループ: [語1, 語2, ...] の形式
-  // Word APIのワイルドカードで「語の後に助詞・句読点が来る場合」のみ検索
-  var AFTER_CHARS = "[をはがにでへもとのやか、。」） ]";
-  var groups = [
-    ["取り消し", "取消し", "取消"],
-    ["申し込み", "申込み", "申込"],
-    ["支払い", "支払"],
-    ["引き渡し", "引渡し", "引渡"],
-    ["貸し付け", "貸付け", "貸付"],
-    ["借り入れ", "借入れ", "借入"],
-    ["立て替え", "立替え", "立替"],
-    ["割り当て", "割当て", "割当"]
-  ];
-  var kh = [
-    ["及び", "および"],
-    ["又は", "または"],
-    ["並びに", "ならびに"],
-    ["若しくは", "もしくは"],
-    ["但し", "ただし"],
-    ["直ちに", "ただちに"],
-    ["予め", "あらかじめ"],
-    ["既に", "すでに"],
-    ["更に", "さらに"]
-  ];
-  var allGroups = groups.concat(kh);
-  var text = paras.join(" ");
-
-  // まずJSで「名詞形として存在するか」をチェック（助詞・句読点の前のみ）
-  // 語の後が助詞・句読点・文末のみマッチ（活用語尾は除外）
-  var NOUN_AFTER_CHARS = "をはがにでへもとのやか、。」） ";
-  function nounExists(t, w) {
-    var idx = 0;
-    while (idx <= t.length - w.length) {
-      var pos = t.indexOf(w, idx);
-      if (pos < 0) return false;
-      var after = t.charAt(pos + w.length);
-      // 文末 or 助詞・句読点のみOK
-      if (after === "" || NOUN_AFTER_CHARS.indexOf(after) >= 0) return true;
-      idx = pos + 1;
-    }
-    return false;
-  }
-  var candidates = allGroups.filter(function(group) {
-    var found = group.filter(function(w) { return nounExists(text, w); });
-    return found.length > 1;
+function checkJisX0213(paragraphs) {
+  var issues = [];
+  paragraphs.forEach(function(text, idx) {
+    if (/[･-ﾟ]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"半角カタカナ",
+        desc:"半角カタカナが含まれています。法律文書では全角を使用してください", idx:idx });
+    if (/〜/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"〜",
+        desc:"〜(波ダッシュ)は環境により化ける可能性があります。～または2015への変更を検討してください", idx:idx });
+    if (/[-]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"PUA",
+        desc:"私用領域(PUA)の文字が含まれています。環境により表示できない場合があります", idx:idx });
+    if (/[Ⅰ-ⅿ]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"ローマ数字",
+        desc:"特殊ローマ数字(ⅠⅡⅢⅣⅤⅥ)が含まれています。漢数字またはアラビア数字の使用を検討してください", idx:idx });
+    if (/[①-⑳]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"丸数字",
+        desc:"丸数字(①②③...)が含まれています。環境依存文字のため印刷・フォントにより表示できない場合があります", idx:idx });
+    if (/[︀-️]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"異体字",
+        desc:"異体字セレクタが含まれています。法律文書では使用を锱けてください", idx:idx });
   });
-  if (candidates.length === 0) return;
-
-  // Word APIで各語を検索して正確な出現箇所を取得
-  Word.run(function(ctx) {
-    var searches = [];
-    candidates.forEach(function(group) {
-      group.forEach(function(word) {
-        if (nounExists(text, word)) {
-          // ワイルドカード: 語の後に助詞・句読点が来る場合のみマッチ
-          var pattern = word + AFTER_CHARS;
-          var r;
-          try {
-            r = ctx.document.body.search(pattern, { matchCase: true, matchWildcards: true });
-          } catch(e) {
-            // ワイルドカード失敗時はnounExistsで確認済みの段落のみ
-            r = ctx.document.body.search(word + "[をはがにでへもとのやか]", { matchCase: true, matchWildcards: true });
-          }
-          ctx.load(r, "items/text");
-          searches.push({ word: word, group: group, results: r });
-        }
-      });
-    });
-    return ctx.sync().then(function() {
-      // グループごとに実際の出現数を確認
-      var groupResults = {};
-      searches.forEach(function(s) {
-        var key = s.group.join("|");
-        if (!groupResults[key]) groupResults[key] = { group: s.group, words: {} };
-        groupResults[key].words[s.word] = s.results.items.length;
-      });
-
-      var newIssues = [];
-      Object.keys(groupResults).forEach(function(key) {
-        var gr = groupResults[key];
-        var foundWords = gr.group.filter(function(w) {
-          return (gr.words[w] || 0) > 0;
-        });
-        if (foundWords.length > 1) {
-          // 出現箇所をoccurrencesとして収集
-          var occurrences = [];
-          foundWords.forEach(function(w) {
-            paras.forEach(function(p, i) {
-              if (nounExists(p, w)) occurrences.push({ word: w, idx: i });
-            });
-          });
-          var labels = foundWords.map(function(w) { return "「" + w + "」"; }).join("と");
-          newIssues.push({
-            sev: "warning", type: "表記ゆれ",
-            term: foundWords.join(" / "),
-            desc: "表記が混在しています: " + labels,
-            idx: occurrences.length > 0 ? occurrences[0].idx : 0,
-            occurrences: occurrences,
-            recommended: gr.group[0]
-          });
-        }
-      });
-
-      if (newIssues.length > 0) {
-        G.yureIssues = G.yureIssues.concat(newIssues);
-        renderAll();
-        document.getElementById("idleState").style.display = "none";
-        document.getElementById("summary").style.display = "flex";
-        document.getElementById("tabBar").style.display = "flex";
-        showPanes();
-      }
-    });
-  }).catch(function(e) {
-    // Word API失敗時はJS判定にフォールバック
-    var fallback = checkOkurigana(paras);
-    if (fallback.length > 0) {
-      G.yureIssues = G.yureIssues.concat(fallback);
-      renderAll();
-    }
+  var seen = {};
+  return issues.filter(function(i) {
+    var k = i.term+":"+i.idx; if(seen[k]) return false; seen[k]=true; return true;
   });
 }
-function checkOkurigana(paragraphs) {
+function checkJisX0213(paragraphs) {
   var issues = [];
-  var text = paragraphs.join(" ");
-  var groups = [
-    ["\u53d6\u308a\u6d88\u3057", "\u53d6\u6d88\u3057", "\u53d6\u6d88"],
-    ["\u7533\u3057\u8fbc\u307f", "\u7533\u8fbc\u307f", "\u7533\u8fbc"],
-    ["\u652f\u6255\u3044", "\u652f\u6255"],
-    ["\u5f15\u304d\u6e21\u3057", "\u5f15\u6e21\u3057", "\u5f15\u6e21"],
-    ["\u8cb8\u3057\u4ed8\u3051", "\u8cb8\u4ed8\u3051", "\u8cb8\u4ed8"],
-    ["\u501f\u308a\u5165\u308c", "\u501f\u5165\u308c", "\u501f\u5165"],
-    ["\u7acb\u3066\u66ff\u3048", "\u7acb\u66ff\u3048", "\u7acb\u66ff"],
-    ["\u5272\u308a\u5f53\u3066", "\u5272\u5f53\u3066", "\u5272\u5f53"]
-  ];
-  function checkGroup(group) {
-    var found = group.filter(function(w) { return wordMatch(text, w); });
-    if (found.length > 1) {
-      // 各語の出現箇所を収集（境界チェック付き）
-      var occurrences = [];
-      found.forEach(function(w) {
-        wordMatchAll(text, w, paragraphs).forEach(function(o) {
-          occurrences.push(o);
-        });
-      });
-      var labels = found.map(function(w) { return "\u300c" + w + "\u300d"; }).join("\u3068");
-      var firstIdx = occurrences.length > 0 ? occurrences[0].idx : 0;
-      // 推奨形（グループの最初の語）
-      var recommended = group[0];
-      issues.push({ sev: "warning", type: "\u8868\u8a18\u3086\u308c", term: found.join(" / "),
-        desc: "\u8868\u8a18\u304c\u6df7\u5728\u3057\u3066\u3044\u307e\u3059: " + labels,
-        idx: firstIdx, occurrences: occurrences, recommended: recommended });
-    }
-  }
-  var kh = [
-    ["及び", "および"],
-    ["又は", "または"],
-    ["並びに", "ならびに"],
-    ["若しくは", "もしくは"],
-    ["但し", "ただし"],
-    ["直ちに", "ただちに"],
-    ["予め", "あらかじめ"],
-    ["既に", "すでに"],
-    ["更に", "さらに"]
-  ];
-  groups.forEach(checkGroup);
-  kh.forEach(checkGroup);
-  paragraphs.forEach(function(t, idx) {
-    if (/[\uff10-\uff19]/.test(t) && /[0-9]/.test(t))
-      issues.push({ sev: "warning", type: "\u8868\u8a18\u3086\u308c", term: "\u5168\u89d2/\u534a\u89d2\u6570\u5b57",
-        desc: "\u5168\u89d2\u6570\u5b57\u3068\u534a\u89d2\u6570\u5b57\u304c\u6df7\u5728\u3057\u3066\u3044\u307e\u3059", idx: idx });
+  paragraphs.forEach(function(text, idx) {
+    if (/[･-ﾟ]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"半角カタカナ",
+        desc:"半角カタカナが含まれています。法律文書では全角を使用してください", idx:idx });
+    if (/〜/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"〜",
+        desc:"〜(波ダッシュ)は環境により化ける可能性があります。～または2015への変更を検討してください", idx:idx });
+    if (/[-]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"PUA",
+        desc:"私用領域(PUA)の文字が含まれています。環境により表示できない場合があります", idx:idx });
+    if (/[Ⅰ-ⅿ]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"ローマ数字",
+        desc:"特殊ローマ数字(ⅠⅡⅢⅣⅤⅥ)が含まれています。漢数字またはアラビア数字の使用を検討してください", idx:idx });
+    if (/[①-⑳]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"丸数字",
+        desc:"丸数字(①②③...)が含まれています。環境依存文字のため印刷・フォントにより表示できない場合があります", idx:idx });
+    if (/[︀-️]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"異体字",
+        desc:"異体字セレクタが含まれています。法律文書では使用を锱けてください", idx:idx });
   });
-  var variants = {
-    "\u672c\u5951\u7d04": ["\u5f53\u8a72\u5951\u7d04", "\u540c\u5951\u7d04"],
-    "\u5f53\u793e": ["\u5c0f\u793e", "\u5f53\u8a72\u4f1a\u793a"],
-    "\u7532": ["\u7532\u793e", "\u7532\u65b9"],
-    "\u4e59": ["\u4e59\u793e", "\u4e59\u65b9"]
-  };
-  Object.keys(variants).forEach(function(main) {
-    if (text.indexOf(main) >= 0) {
-      var used = variants[main].filter(function(v) { return text.indexOf(v) >= 0; });
-      if (used.length > 0)
-        issues.push({ sev: "warning", type: "\u8868\u8a18\u3086\u308c", term: main + " / " + used.join(" / "),
-          desc: "\u300c" + main + "\u300d\u3068\u5225\u8868\u8a18\u300c" + used.join("\u300d\u300c") + "\u300d\u304c\u6df7\u5728\u3057\u3066\u3044\u307e\u3059",
-          idx: 0 });
-    }
+  var seen = {};
+  return issues.filter(function(i) {
+    var k = i.term+":"+i.idx; if(seen[k]) return false; seen[k]=true; return true;
   });
-  return issues;
+}
+var NOUN_AFTER = "[\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3001\u3002\u300d\uff09 ]";
+
+function makeWordRe(word) {
+  var escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(escaped + "(?=" + NOUN_AFTER + ")");
+}
+
+function wordMatch(text, word) {
+  return makeWordRe(word).test(text);
+}
+
+function wordMatchAll(text, word, paragraphs) {
+  var re = makeWordRe(word);
+  var result = [];
+  paragraphs.forEach(function(p, i) {
+    if (re.test(p)) result.push({ word: word, idx: i });
+  });
+  return result;
 }
 
 var LAW_NAMES = ["\u6c11\u6cd5","\u5546\u6cd5","\u4f1a\u793e\u6cd5","\u52b4\u50cd\u57fa\u6e96\u6cd5","\u500b\u4eba\u60c5\u5831\u4fdd\u8b77\u6cd5","\u4e0d\u6b63\u7af6\u4e89\u9632\u6b62\u6cd5","\u7279\u8a31\u6cd5","\u8457\u4f5c\u6a29\u6cd5","\u6d88\u8cbb\u8005\u5951\u7d04\u6cd5","\u4e0b\u8acb\u6cd5","\u72ec\u5360\u7981\u6b62\u6cd5"];
@@ -804,8 +712,6 @@ function runAnalysis() {
     G.formatIssues = detectFormat(paras);
     G.consistIssues = checkConsist(paras, G.terms);
     G.yureIssues = checkJisX0213(paras).concat(checkKoyoBun(paras));
-    // 送り仮名チェックはWord APIで正確に実施
-    checkOkuriganaWithWordAPI(paras);
     G.detectedLaws = detectLawNames(paras);
     renderAll();
     document.getElementById("idleState").style.display = "none";
