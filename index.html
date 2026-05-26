@@ -288,11 +288,11 @@ function checkKoyoBun(paragraphs) {
     });
   });
 
-  // 3. 曖昧語
+  // 3. 曖昧語（語境界チェック付き）
   var aimai = [
     "幾つか", "多少", "多め", "少なめ",
     "早めに", "少しでも早めに", "可及的速やかに",
-    "喜んで且つの課題", "少人数", "多数"
+    "少人数", "多数"
   ];
   aimai.forEach(function(w) {
     paragraphs.forEach(function(t, idx) {
@@ -329,7 +329,18 @@ function checkKoyoBun(paragraphs) {
   ];
   setsuZoku.forEach(function(s) {
     paragraphs.forEach(function(t, idx) {
-      if (t.indexOf(s[0]) >= 0) {
+      // 語境界チェック（「および」の前後が適切な境界か確認）
+      var found = false;
+      var i2 = 0;
+      while (i2 <= t.length - s[0].length) {
+        var pos = t.indexOf(s[0], i2);
+        if (pos < 0) break;
+        var before = t.charAt(pos - 1) || "";
+        var after = t.charAt(pos + s[0].length) || "";
+        if (isBeforeBoundary(before) && isAfterBoundary(after)) { found = true; break; }
+        i2 = pos + 1;
+      }
+      if (found) {
         issues.push({ sev:"warning", type:"公用文表記", term:s[0],
           desc:"ひらがな「" + s[0] + "」が使われています。" + s[2], idx:idx });
       }
