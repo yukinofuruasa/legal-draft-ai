@@ -4,11 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>LegalDraft AI</title>
-<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f8f9fb;--surface:#fff;--s2:#f1f3f7;--s3:#e8ecf2;
+  --bg:#f8f9fb;--surface:#fff;--s2:#f1f3f7;
   --border:#d1d9e0;--text:#1a2332;--t2:#4a5568;--t3:#718096;
   --accent:#1e3a5f;--blue:#2563eb;--blue-l:#dbeafe;
   --green:#16a34a;--green-l:#dcfce7;
@@ -20,75 +19,54 @@
 body{font-family:"Yu Gothic UI","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;
      font-size:13px;background:var(--bg);color:var(--text);line-height:1.5;
      height:100vh;display:flex;flex-direction:column;overflow:hidden}
-
-/* ── Header ── */
 .hdr{display:flex;align-items:center;justify-content:space-between;
      padding:9px 12px;background:var(--accent);flex-shrink:0;gap:8px}
-.hdr-logo{display:flex;align-items:center;gap:7px;flex-shrink:0}
-.hdr-title{color:#e2e8f0;font-size:13px;font-weight:600;white-space:nowrap}
+.hdr-logo{display:flex;align-items:center;gap:7px}
+.hdr-title{color:#e2e8f0;font-size:13px;font-weight:600}
 .btn-analyze{display:flex;align-items:center;gap:5px;background:var(--blue);color:#fff;
-             border:none;padding:5px 11px;border-radius:var(--rs);
-             font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}
+             border:none;padding:5px 11px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer}
 .btn-analyze:hover:not(:disabled){background:#1d4ed8}
 .btn-analyze:disabled{opacity:.6;cursor:not-allowed}
 .spin{width:11px;height:11px;border:2px solid rgba(255,255,255,.3);
       border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── Summary ── */
 .summary{display:flex;align-items:center;gap:5px;flex-wrap:wrap;
          padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
-.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;
-      border-radius:100px;font-size:11px;font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:100px;font-size:11px;font-weight:600}
 .pill-b{background:var(--blue-l);color:#1d4ed8}
 .pill-r{background:var(--red-l);color:#b91c1c}
 .pill-a{background:var(--amber-l);color:#92400e}
 .pill-g{background:var(--green-l);color:#15803d}
 .btn-xs{font-size:11px;color:var(--t3);background:none;border:1px solid var(--border);
-        padding:2px 6px;border-radius:var(--rs);cursor:pointer;white-space:nowrap}
-.btn-xs:hover{background:var(--s2)}
-.ml-auto{margin-left:auto}
-
-/* ── Tabs ── */
+        padding:2px 6px;border-radius:var(--rs);cursor:pointer;margin-left:auto}
 .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
 .tab{flex:1;padding:8px 2px;background:none;border:none;font-size:11px;
      color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;
-     gap:4px;border-bottom:2px solid transparent;transition:all .15s;line-height:1.2}
+     gap:4px;border-bottom:2px solid transparent;transition:all .15s}
 .tab:hover{background:var(--s2)}
 .tab.on{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
 .bdg{background:var(--blue);color:#fff;font-size:10px;padding:0 4px;
      border-radius:100px;min-width:15px;text-align:center;line-height:15px;font-weight:700}
-.tab.on .bdg{background:var(--blue)}
-
-/* ── Content ── */
 .content{flex:1;overflow-y:auto}
 .pane{display:none;padding:10px 11px}
 .pane.on{display:block}
 .pdesc{font-size:11px;color:var(--t3);margin-bottom:9px;line-height:1.4}
-
-/* ── Idle / empty ── */
 .idle{padding:36px 20px;text-align:center;color:var(--t3);
       display:flex;flex-direction:column;align-items:center;gap:10px}
 .idle p{font-size:13px;line-height:1.6}
 .idle .sub{font-size:11px}
 .empty{padding:24px 14px;text-align:center;color:var(--t3);
        display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px}
-
-/* ── Term card ── */
 .tc{background:var(--surface);border:1px solid var(--border);
-    border-radius:var(--r);margin-bottom:6px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+    border-radius:var(--r);margin-bottom:6px;overflow:hidden;cursor:pointer}
 .tc:hover{border-color:#93c5fd}
 .tc-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 11px}
 .tc-name{font-weight:600;font-size:13px;color:var(--blue)}
-.tc-badge{font-size:10px;background:var(--blue-l);color:var(--blue);
-          padding:1px 6px;border-radius:100px;font-weight:600}
+.tc-badge{font-size:10px;background:var(--blue-l);color:var(--blue);padding:1px 6px;border-radius:100px;font-weight:600}
 .tc-body{padding:0 11px 9px;border-top:1px solid var(--border);display:none}
 .tc.open .tc-body{display:block}
-.tc-ctx{font-size:11px;color:var(--t2);margin:7px 0;
-        background:var(--s2);padding:5px 8px;border-radius:var(--rs);line-height:1.5}
+.tc-ctx{font-size:11px;color:var(--t2);margin:7px 0;background:var(--s2);padding:5px 8px;border-radius:var(--rs);line-height:1.5}
 .tc-actions{display:flex;gap:6px;flex-wrap:wrap}
-
-/* ── Issue card ── */
 .ic{border-radius:var(--r);margin-bottom:6px;padding:9px 11px;border-left:3px solid transparent}
 .ic-err{border-left-color:var(--red);background:var(--red-l)}
 .ic-wrn{border-left-color:var(--amber);background:var(--amber-l)}
@@ -98,121 +76,64 @@ body{font-family:"Yu Gothic UI","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;
 .ic-term{font-size:12px;font-weight:600}
 .ic-desc{font-size:11px;color:var(--t2);margin-bottom:5px;line-height:1.5}
 .ic-fix{font-size:11px;color:var(--indigo);margin-bottom:5px;font-style:italic}
-
-/* ── eGov panel ── */
-.egov-pane{padding:10px 11px}
 .egov-search{display:flex;gap:6px;margin-bottom:10px}
-.egov-input{flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:var(--rs);
-            font-size:12px;font-family:inherit;background:var(--surface);color:var(--text)}
+.egov-input{flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:var(--rs);font-size:12px;font-family:inherit}
 .egov-input:focus{outline:none;border-color:var(--blue)}
-.btn-search{background:var(--blue);color:#fff;border:none;padding:6px 11px;
-            border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
-.btn-search:hover{background:#1d4ed8}
-.btn-search:disabled{opacity:.6;cursor:not-allowed}
-.law-list{display:flex;flex-direction:column;gap:5px}
-.law-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-          padding:8px 11px;cursor:pointer;transition:border-color .15s}
+.btn-search{background:var(--blue);color:#fff;border:none;padding:6px 11px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer}
+.law-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:8px 11px;cursor:pointer;margin-bottom:5px}
 .law-item:hover{border-color:#93c5fd}
 .law-item-title{font-weight:600;font-size:12px;color:var(--blue);margin-bottom:2px}
 .law-item-sub{font-size:10px;color:var(--t3)}
 .law-detail{margin-top:8px;border-top:1px solid var(--border);padding-top:8px;display:none}
 .law-item.open .law-detail{display:block}
-.law-article{margin-bottom:7px}
 .law-art-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px}
 .law-art-body{font-size:11px;color:var(--t2);line-height:1.6;white-space:pre-wrap;word-break:break-all}
-.law-tag{display:inline-block;font-size:10px;background:var(--s2);color:var(--t2);
-         padding:1px 6px;border-radius:100px;margin-bottom:4px}
-.egov-link{display:inline-block;font-size:11px;color:var(--blue);margin-top:6px;text-decoration:none}
-.egov-link:hover{text-decoration:underline}
-
-/* ── Buttons ── */
-.btn-j{font-size:11px;color:var(--blue);background:var(--blue-l);border:none;
-       padding:3px 8px;border-radius:var(--rs);cursor:pointer}
+.egov-link{display:inline-block;font-size:11px;color:var(--blue);margin-top:6px}
+.btn-j{font-size:11px;color:var(--blue);background:var(--blue-l);border:none;padding:3px 8px;border-radius:var(--rs);cursor:pointer}
 .btn-j:hover{background:#bfdbfe}
-.btn-egov{font-size:11px;color:var(--green);background:var(--green-l);border:none;
-          padding:3px 8px;border-radius:var(--rs);cursor:pointer}
-.btn-egov:hover{background:#bbf7d0}
+.btn-egov{font-size:11px;color:var(--green);background:var(--green-l);border:none;padding:3px 8px;border-radius:var(--rs);cursor:pointer}
 .arow{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px}
-.btn-fix{flex-shrink:0;font-size:11px;font-weight:600;background:var(--indigo);color:#fff;
-         border:none;padding:4px 10px;border-radius:var(--rs);cursor:pointer}
-.btn-fix:hover:not(:disabled){background:#4338ca}
+.btn-fix{flex-shrink:0;font-size:11px;font-weight:600;background:var(--indigo);color:#fff;border:none;padding:4px 10px;border-radius:var(--rs);cursor:pointer}
 .btn-fix:disabled{opacity:.6;cursor:not-allowed}
 .sev-leg{display:flex;gap:10px;font-size:11px;margin-bottom:9px;color:var(--t2)}
-
-/* ── eGov modal overlay ── */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;
-          display:none;align-items:flex-start;justify-content:center;padding:16px}
-.modal-bg.show{display:flex}
-.modal{background:var(--surface);border-radius:var(--r);width:100%;max-height:80vh;
-       overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)}
-.modal-hdr{display:flex;align-items:center;justify-content:space-between;
-           padding:12px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;
-           background:var(--surface)}
-.modal-title{font-size:13px;font-weight:600}
-.modal-close{background:none;border:none;font-size:18px;cursor:pointer;
-             color:var(--t3);line-height:1;padding:2px 6px}
-.modal-close:hover{color:var(--text)}
-.modal-body{padding:12px 14px}
-
-/* ── Toast ── */
+.loading-row{display:flex;align-items:center;gap:8px;padding:16px;font-size:12px;color:var(--t3)}
 .toast{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
        background:#1a2332;color:#fff;font-size:12px;padding:7px 14px;
        border-radius:100px;box-shadow:0 4px 12px rgba(0,0,0,.2);
        max-width:92%;text-align:center;z-index:200;pointer-events:none;
        opacity:0;transition:opacity .2s}
 .toast.show{opacity:1}
-
-/* ── Loading indicator ── */
-.loading-row{display:flex;align-items:center;gap:8px;padding:16px;
-             font-size:12px;color:var(--t3)}
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <div class="hdr">
   <div class="hdr-logo">
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
       <rect width="20" height="20" rx="5" fill="#1e3a5f"/>
       <path d="M5 6h10M5 10h7M5 14h9" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
-      <circle cx="15" cy="10" r="3" fill="#3b82f6" opacity=".9"/>
-      <path d="M14 10l.8.8L16.5 9" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <span class="hdr-title">LegalDraft AI</span>
   </div>
-  <button class="btn-analyze" id="btnAnalyze" onclick="runAnalysis()">
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-      <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/>
-      <path d="M6 3v3l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-    </svg>
-    今すぐ分析
-  </button>
+  <button class="btn-analyze" id="btnAnalyze" onclick="runAnalysis()">今すぐ分析</button>
 </div>
 
-<!-- Summary bar (hidden until analysis done) -->
 <div class="summary" id="summary" style="display:none">
   <span class="pill pill-b" id="sumTerms">定義語 0</span>
   <span class="pill pill-r" id="sumErrors" style="display:none">エラー 0</span>
   <span class="pill pill-a" id="sumWarns" style="display:none">警告 0</span>
   <span class="pill pill-g" id="sumLaws" style="display:none">法令 0</span>
-  <button class="btn-xs ml-auto" onclick="clearHL()">HL解除</button>
+  <button class="btn-xs" onclick="clearHL()">HL解除</button>
 </div>
 
-<!-- Tabs -->
 <div class="tabs" id="tabBar" style="display:none">
   <button class="tab on" data-tab="terms" onclick="switchTab('terms')">定義語<span class="bdg" id="bdgTerms">0</span></button>
   <button class="tab" data-tab="format" onclick="switchTab('format')">書式<span class="bdg" id="bdgFormat">0</span></button>
   <button class="tab" data-tab="consist" onclick="switchTab('consist')">整合性<span class="bdg" id="bdgConsist">0</span></button>
-  <button class="tab" data-tab="egov" onclick="switchTab('egov')">
-    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1"/><path d="M1.5 5.5h8M5.5 1.5a7 4 0 0 0 0 8M5.5 1.5a7 4 0 0 1 0 8" stroke="currentColor" stroke-width="1"/></svg>
-    e-Gov<span class="bdg" id="bdgLaws">0</span>
-  </button>
+  <button class="tab" data-tab="egov" onclick="switchTab('egov')">e-Gov<span class="bdg" id="bdgLaws">0</span></button>
 </div>
 
-<!-- Content -->
 <div class="content">
-
-  <!-- Idle state -->
   <div class="idle" id="idleState">
     <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
       <rect x="6" y="3" width="32" height="38" rx="4" stroke="var(--border)" stroke-width="1.5" fill="none"/>
@@ -221,793 +142,360 @@ body{font-family:"Yu Gothic UI","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;
     <p>「今すぐ分析」を押して<br/>ドキュメントを解析します</p>
     <p class="sub">定義語 · 書式 · 整合性 · e-Gov法令参照</p>
   </div>
-
-  <!-- Terms tab -->
-  <div class="pane on" id="pane-terms" style="display:none">
-    <p class="pdesc" id="termsDesc"></p>
-    <div id="termsList"></div>
-  </div>
-
-  <!-- Format tab -->
-  <div class="pane" id="pane-format" style="display:none">
-    <div class="arow">
-      <p class="pdesc" id="formatDesc" style="margin-bottom:0"></p>
-      <button class="btn-fix" id="btnFix" onclick="applyFix()">一括修正</button>
-    </div>
-    <div id="formatList"></div>
-  </div>
-
-  <!-- Consistency tab -->
-  <div class="pane" id="pane-consist" style="display:none">
-    <div class="sev-leg">
-      <span style="color:var(--red)">● エラー</span>
-      <span style="color:var(--amber)">● 警告</span>
-    </div>
-    <div id="consistList"></div>
-  </div>
-
-  <!-- eGov tab -->
+  <div class="pane on" id="pane-terms" style="display:none"><p class="pdesc" id="termsDesc"></p><div id="termsList"></div></div>
+  <div class="pane" id="pane-format" style="display:none"><div class="arow"><p class="pdesc" id="formatDesc" style="margin-bottom:0"></p><button class="btn-fix" id="btnFix" onclick="applyFix()">一括修正</button></div><div id="formatList"></div></div>
+  <div class="pane" id="pane-consist" style="display:none"><div class="sev-leg"><span style="color:var(--red)">● エラー</span><span style="color:var(--amber)">● 警告</span></div><div id="consistList"></div></div>
   <div class="pane" id="pane-egov" style="display:none">
-    <div class="egov-pane">
+    <div style="padding:10px 11px">
       <div class="egov-search">
-        <input class="egov-input" id="egovInput" type="text" placeholder="法令名を検索（例: 民法、会社法）"
-               onkeydown="if(event.key==='Enter')searchLaw()"/>
+        <input class="egov-input" id="egovInput" type="text" placeholder="法令名を検索（例: 民法）" onkeydown="if(event.key==='Enter')searchLaw()"/>
         <button class="btn-search" id="btnSearch" onclick="searchLaw()">検索</button>
       </div>
-      <div id="detectedLaws" style="margin-bottom:10px"></div>
+      <div id="detectedLaws"></div>
       <div id="lawResults"></div>
     </div>
   </div>
-
 </div>
 
-<!-- eGov Article Modal -->
-<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-hdr">
-      <span class="modal-title" id="modalTitle"></span>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-  </div>
-</div>
-
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- office.js は body の最後に読み込む -->
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
 <script>
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════════════════
-let G = {
-  paragraphs: [],
-  terms: [],
-  formatIssues: [],
-  consistIssues: [],
-  detectedLaws: [],
-  activeTab: 'terms',
-  fixing: false,
-  analyzing: false,
-};
+// ═══════════════════════════════════════
+var G = { paragraphs:[], terms:[], formatIssues:[], consistIssues:[], detectedLaws:[], activeTab:'terms', analyzing:false, fixing:false };
 
-// ═══════════════════════════════════════════════════════════
-// OFFICE INIT
-// ═══════════════════════════════════════════════════════════
-// Word内でもブラウザ単体でも動くように初期化
-function initApp() {
-  if (typeof Word === "undefined") {
-    window.Word = {
-      run: async (fn) => {
-        const ctx = {
-          document: {
-            body: {
-              paragraphs: { load:()=>{}, items:[] },
-              search: ()=>({ load:()=>{}, items:[] }),
-              font: { highlightColor:"" }
-            },
-            getSelection: ()=>({ load:()=>{}, text:"" })
-          },
-          sync: async()=>{}
-        };
-        return await fn(ctx);
-      }
-    };
-    document.getElementById("idleState").innerHTML = `
-      <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
-        <rect x="6" y="3" width="32" height="38" rx="4" stroke="var(--border)" stroke-width="1.5" fill="none"/>
-        <path d="M13 12h18M13 18h12M13 24h15M13 30h10" stroke="var(--border)" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <p>Word アドインとして動作します</p>
-      <p class="sub">Wordのタスクパネルで開くと全機能が使えます<br>ここではデモ分析を試せます</p>
-      <button onclick="runDemoAnalysis()" style="margin-top:8px;background:#2563eb;color:#fff;border:none;padding:8px 18px;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600">デモ分析を実行</button>
-    `;
-  }
-}
-
-function runDemoAnalysis() {
-  G.paragraphs = [
-    "第1条（目的）",
-    "本契約は、株式会社山田商事（以下「甲」という）と株式会社田中工業（以下「乙」という）との間で締結する業務委託契約（以下「本契約」という）について定める。",
-    "第2条（業務内容）",
-    "甲は乙に対し、本契約に基づき以下の業務（以下「本業務」という）を委託する。",
-    "1. システム開発業務",
-    "2. 保守・運用業務",
-    "3. コンサルティング業務",
-    "第4条（報酬）",
-    "甲は乙に対し、本業務の対価として月額金500,000円（以下「委託料」という）を支払う。",
-    "第5条（秘密保持）",
-    "甲および乙は、本契約の履行に際して知り得た相手方の秘密情報（以下「秘密情報」という）を第三者に開示してはならない。",
-    "第6条（個人情報保護法の遵守）",
-    "甲および乙は、個人情報保護法および関連法令を遵守する。",
-    "第7条（契約期間）",
-    "本契約の有効期間は、令和６年４月１日から令和7年3月31日までとする。",
-    "第9条（管轄裁判所）",
-    "本契約に関する紛争は、東京地方裁判所を第一審の専属管轄裁判所とする。",
-    "前条の規定にかかわらず、「委任」に関する事項は民法の規定による。",
-  ];
-  G.terms = extractTerms(G.paragraphs);
-  G.formatIssues = detectFormat(G.paragraphs);
-  G.consistIssues = checkConsist(G.paragraphs, G.terms);
-  G.detectedLaws = detectLawNames(G.paragraphs);
-  renderAll();
-  document.getElementById("idleState").style.display = "none";
-  document.getElementById("summary").style.display = "flex";
-  document.getElementById("tabBar").style.display = "flex";
-  showPanes();
-  toast("デモ分析完了！Wordでは実際の文書を読み込みます");
-}
-
-// office.js ロード成功 → Office.onReady で起動
-// office.js ロード失敗 → office-unavailable イベントで起動
-// どちらでもなければ load イベントで起動
-// Office.onReady で確実に初期化
-Office.onReady(function(info){
-  initApp();
-});
-
-// ═══════════════════════════════════════════════════════════
-// ENGINE — 定義語検出
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// ENGINE
+// ═══════════════════════════════════════
 function extractTerms(paragraphs) {
-  const map = new Map();
-  const pats = [
+  var map = {};
+  var pats = [
     /「([^」]{1,25})」(?:という|と総称する|とする|といい)/g,
     /（以下[、，]?\s*「([^」]{1,25})」(?:という|と総称する|とする)?）/g,
     /\(以下[、，]?\s*「([^」]{1,25})」(?:という|と総称する)?\)/g,
     /\(hereinafter\s+"([^"]{1,25})"\)/gi,
-    /\(the\s+"([^"]{1,25})"\)/gi,
   ];
-  paragraphs.forEach((text, idx) => {
-    pats.forEach(pat => {
+  paragraphs.forEach(function(text, idx) {
+    pats.forEach(function(pat) {
       pat.lastIndex = 0;
-      let m;
+      var m;
       while ((m = pat.exec(text)) !== null) {
-        const term = m[1].trim();
+        var term = m[1].trim();
         if (!term || term.length < 1) continue;
-        if (!map.has(term)) {
-          const s = Math.max(0, m.index - 15);
-          const e = Math.min(text.length, m.index + 70);
-          map.set(term, { term, definition: text.slice(s, e).trim(), firstIdx: idx, count: 1 });
-        } else {
-          map.get(term).count++;
-        }
+        if (!map[term]) {
+          var s = Math.max(0, m.index - 15);
+          var e = Math.min(text.length, m.index + 70);
+          map[term] = { term:term, definition:text.slice(s,e).trim(), firstIdx:idx, count:1 };
+        } else { map[term].count++; }
       }
     });
   });
-  // count usages after definition
-  map.forEach((info, term) => {
-    const esc = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp(`「${esc}」`, 'g');
-    paragraphs.forEach((t, i) => {
-      if (i > info.firstIdx) {
-        const ms = t.match(re);
-        if (ms) info.count += ms.length;
-      }
-    });
-  });
-  return [...map.values()].sort((a, b) => a.firstIdx - b.firstIdx);
+  return Object.values(map).sort(function(a,b){ return a.firstIdx - b.firstIdx; });
 }
 
-// ── フォーマット問題検出
 function detectFormat(paragraphs) {
-  const issues = [];
-  let artN = 0, listN = 0;
-  paragraphs.forEach((raw, idx) => {
-    const t = raw.trim();
-    if (!t) { listN = 0; return; }
-    const am = t.match(/^第\s*(\d+)\s*条/);
-    if (am) {
-      artN++;
-      const cur = parseInt(am[1]);
-      if (artN > 1 && cur !== artN) {
-        issues.push({ idx, text: t.slice(0, 55), issue: `条番号の不連続: 第${cur}条（第${artN}条が期待されます）`, fix: `第${artN}条` });
-      }
-      listN = 0; return;
-    }
-    const lm = t.match(/^(\d+)\.\s/);
-    if (lm) {
-      listN++;
-      const cur = parseInt(lm[1]);
-      if (cur !== listN && cur !== 1) {
-        issues.push({ idx, text: t.slice(0, 55), issue: `リスト番号の不連続: ${cur}（${listN}が期待されます）`, fix: `${listN}.` });
-      }
-      return;
-    }
-    if (/[０-９]/.test(t) && /[0-9]/.test(t))
-      issues.push({ idx, text: t.slice(0, 55), issue: '全角・半角数字が混在しています', fix: '半角数字に統一' });
-    if (/[、。]/.test(t) && /[，．]/.test(t))
-      issues.push({ idx, text: t.slice(0, 55), issue: '句読点スタイルが混在しています（、。と，．）', fix: 'どちらかに統一' });
+  var issues = []; var artN = 0; var listN = 0;
+  paragraphs.forEach(function(raw, idx) {
+    var t = raw.trim(); if (!t) { listN = 0; return; }
+    var am = t.match(/^第\s*(\d+)\s*条/);
+    if (am) { artN++; var cur = parseInt(am[1]);
+      if (artN > 1 && cur !== artN) issues.push({ idx:idx, text:t.slice(0,55), issue:'条番号の不連続: 第'+cur+'条（第'+artN+'条が期待されます）', fix:'第'+artN+'条' });
+      listN = 0; return; }
+    var lm = t.match(/^(\d+)\.\s/);
+    if (lm) { listN++; var cur2 = parseInt(lm[1]);
+      if (cur2 !== listN && cur2 !== 1) issues.push({ idx:idx, text:t.slice(0,55), issue:'リスト番号の不連続: '+cur2+'（'+listN+'が期待）', fix:listN+'.' }); return; }
+    if (/[０-９]/.test(t) && /[0-9]/.test(t)) issues.push({ idx:idx, text:t.slice(0,55), issue:'全角・半角数字が混在', fix:'半角数字に統一' });
+    if (/[、。]/.test(t) && /[，．]/.test(t)) issues.push({ idx:idx, text:t.slice(0,55), issue:'句読点スタイルが混在（、。と，．）', fix:'どちらかに統一' });
   });
   return issues;
 }
 
-// ── 整合性チェック
 function checkConsist(paragraphs, terms) {
-  const issues = [];
-  const termSet = new Set(terms.map(t => t.term));
-  const skip = new Set(['以下','甲','乙','丙','丁','当事者','本契約','本件','本条','前条','次条','前項','本項','同条','同項','前号']);
-
-  // 定義重複
-  const defCount = new Map();
-  terms.forEach(t => { defCount.set(t.term, (defCount.get(t.term)||0)+1); });
-  defCount.forEach((c, term) => {
-    if (c > 1) issues.push({ sev:'error', type:'定義重複', term, desc:`「${term}」が${c}箇所で定義されています`, idx: terms.find(t=>t.term===term).firstIdx });
+  var issues = [];
+  var skip = new Set(['以下','甲','乙','丙','丁','当事者','本契約','本件','本条','前条','次条','前項','本項','同条','同項','前号']);
+  var defCount = {};
+  terms.forEach(function(t){ defCount[t.term] = (defCount[t.term]||0)+1; });
+  Object.keys(defCount).forEach(function(term){
+    if (defCount[term]>1) issues.push({ sev:'error', type:'定義重複', term:term, desc:'「'+term+'」が'+defCount[term]+'箇所で定義されています', idx:terms.find(function(t){return t.term===term;}).firstIdx });
   });
-
-  // 未定義語 & 条項参照
-  const artRefRe = /第\s*(\d+)\s*条/g;
-  paragraphs.forEach((text, idx) => {
-    // 未定義語
-    const usePat = /「([^」]{1,20})」/g;
-    let m;
+  paragraphs.forEach(function(text, idx) {
+    var usePat = /「([^」]{1,20})」/g; var m;
     while ((m = usePat.exec(text)) !== null) {
-      const w = m[1].trim();
-      if (skip.has(w) || w.length < 2) continue;
-      const isDef = terms.some(t => t.term === w && t.firstIdx <= idx);
-      const hasDef = /「[^」]+」(?:という|と総称する|とする|といい)/.test(text) || /（以下[、，]?「/.test(text);
-      if (!isDef && !hasDef) {
-        issues.push({ sev:'warning', type:'未定義語', term: w, desc:`「${w}」が参照されていますが定義が見当たりません`, idx });
-      }
+      var w = m[1].trim(); if (skip.has(w) || w.length < 2) continue;
+      var isDef = terms.some(function(t){ return t.term===w && t.firstIdx<=idx; });
+      var hasDef = /「[^」]+」(?:という|と総称する|とする|といい)/.test(text) || /（以下[、，]?「/.test(text);
+      if (!isDef && !hasDef) issues.push({ sev:'warning', type:'未定義語', term:w, desc:'「'+w+'」が参照されていますが定義が見当たりません', idx:idx });
     }
-    // 条項参照
-    artRefRe.lastIndex = 0;
+    var artRefRe = /第\s*(\d+)\s*条/g;
     while ((m = artRefRe.exec(text)) !== null) {
-      const refN = parseInt(m[1]);
-      const exists = paragraphs.some(p => new RegExp(`^第\\s*${refN}\\s*条`).test(p.trim()));
-      if (!exists) issues.push({ sev:'warning', type:'参照エラー', term:`第${refN}条`, desc:`第${refN}条を参照していますが文書内に見つかりません`, idx });
+      var refN = parseInt(m[1]);
+      var exists = paragraphs.some(function(p){ return new RegExp('^第\\s*'+refN+'\\s*条').test(p.trim()); });
+      if (!exists) issues.push({ sev:'warning', type:'参照エラー', term:'第'+refN+'条', desc:'第'+refN+'条を参照していますが文書内に見つかりません', idx:idx });
     }
   });
-
-  // 重複排除
-  const seen = new Set();
-  return issues.filter(i => {
-    const k = `${i.type}:${i.term}:${i.idx}`;
-    if (seen.has(k)) return false;
-    seen.add(k); return true;
-  });
+  var seen = new Set();
+  return issues.filter(function(i){ var k=i.type+':'+i.term+':'+i.idx; if(seen.has(k))return false; seen.add(k); return true; });
 }
 
-// ── 法令名検出（文書から）
-const LAW_NAMES = [
-  '民法','商法','会社法','独占禁止法','独禁法','労働基準法','労基法',
-  '個人情報保護法','不正競争防止法','特許法','著作権法','借地借家法',
-  '消費者契約法','電子署名法','下請法','建設業法','宅地建物取引業法',
-  '金融商品取引法','銀行法','保険業法','信託法','破産法','民事再生法',
-  '会社更生法','民事訴訟法','仲裁法','調停法','行政手続法','国家賠償法',
-  '不法行為','製造物責任法','割賦販売法','特定商取引法',
-];
+var LAW_NAMES = ['民法','商法','会社法','労働基準法','個人情報保護法','不正競争防止法','特許法','著作権法','消費者契約法','下請法','独占禁止法'];
 function detectLawNames(paragraphs) {
-  const found = new Set();
-  const text = paragraphs.join(' ');
-  LAW_NAMES.forEach(name => { if (text.includes(name)) found.add(name); });
-  // 「〇〇法」パターン
-  const re = /([^\s「」（）、。]{2,10}法)/g;
-  let m;
-  while ((m = re.exec(text)) !== null) found.add(m[1]);
-  return [...found].filter(n => n.length >= 2 && n.length <= 15).slice(0, 20);
+  var found = new Set(); var text = paragraphs.join(' ');
+  LAW_NAMES.forEach(function(n){ if(text.includes(n)) found.add(n); });
+  var re = /([^\s「」（）、。]{2,10}法)/g; var m;
+  while((m=re.exec(text))!==null) found.add(m[1]);
+  return Array.from(found).filter(function(n){ return n.length>=2 && n.length<=15; }).slice(0,15);
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 // WORD API
-// ═══════════════════════════════════════════════════════════
-async function getParagraphs() {
-  try {
-    return await Word.run(async ctx => {
-      const body = ctx.document.body;
-      const ps = body.paragraphs;
-      context = ctx;
-      ps.load("items/text");
-      await ctx.sync();
-      return ps.items.map(function(p){ return p.text || ""; });
+// ═══════════════════════════════════════
+function getParagraphs() {
+  return Word.run(function(ctx) {
+    var ps = ctx.document.body.paragraphs;
+    ctx.load(ps, 'text');
+    return ctx.sync().then(function() {
+      var texts = [];
+      for (var i = 0; i < ps.items.length; i++) {
+        texts.push(ps.items[i].text || '');
+      }
+      return texts;
     });
-  } catch(e) {
-    console.warn("getParagraphs error:", e.message);
-    // フォールバック: body.text を改行で分割
-    try {
-      return await Word.run(async ctx => {
-        const body = ctx.document.body;
-        body.load("text");
-        await ctx.sync();
-        return body.text.split("
-").filter(function(t){ return t.trim(); });
+  });
+}
+
+function highlightTerms(terms) {
+  return Word.run(function(ctx) {
+    var body = ctx.document.body;
+    var searches = terms.slice(0,10).map(function(t) {
+      return body.search('「'+t.term+'」', { matchCase:true });
+    });
+    searches.forEach(function(s){ ctx.load(s,'font'); });
+    return ctx.sync().then(function() {
+      searches.forEach(function(s) {
+        s.items.forEach(function(r){ r.font.highlightColor = '#FFF3CD'; });
       });
-    } catch(e2) {
-      console.error("fallback error:", e2.message);
-      return [];
-    }
-  }
-}
-
-async function highlightTerms(terms) {
-  return Word.run(async ctx => {
-    for (const t of terms) {
-      try {
-        const res = ctx.document.body.search(`「${t.term}」`, { matchCase: true });
-        res.load('items/text');
-        await ctx.sync();
-        res.items.forEach(r => { r.font.highlightColor = '#FFF3CD'; });
-        await ctx.sync();
-      } catch(e) {}
-    }
+      return ctx.sync();
+    });
   });
 }
 
-async function highlightErrors(issues) {
-  return Word.run(async ctx => {
-    for (const i of issues) {
-      if (!i.term || i.term.length > 25) continue;
-      try {
-        const q = `「${i.term}」`;
-        const res = ctx.document.body.search(q, { matchCase: false });
-        res.load('items/text');
-        await ctx.sync();
-        const color = i.sev === 'error' ? '#FFCCCC' : '#FFF0CC';
-        res.items.forEach(r => { r.font.highlightColor = color; });
-        await ctx.sync();
-      } catch(e) {}
-    }
-  });
-}
-
-async function clearHL() {
-  await Word.run(async ctx => {
+function clearHL() {
+  Word.run(function(ctx) {
     ctx.document.body.font.highlightColor = 'None';
-    await ctx.sync();
-  });
-  toast('ハイライトを解除しました');
+    return ctx.sync();
+  }).then(function(){ toast('ハイライトを解除しました'); }).catch(function(){});
 }
 
-async function jumpTo(idx) {
-  try {
-    await Word.run(async ctx => {
-      const ps = ctx.document.body.paragraphs;
-      ps.load('items/text');
-      await ctx.sync();
+function jumpTo(idx) {
+  Word.run(function(ctx) {
+    var ps = ctx.document.body.paragraphs;
+    ctx.load(ps, 'text');
+    return ctx.sync().then(function() {
       if (idx < ps.items.length) {
         ps.items[idx].select();
-        await ctx.sync();
+        return ctx.sync();
       }
     });
-  } catch(e) {}
+  }).catch(function(){});
 }
 
-async function applyFix() {
+function applyFix() {
   if (G.fixing) return;
   G.fixing = true;
   document.getElementById('btnFix').disabled = true;
   document.getElementById('btnFix').textContent = '修正中...';
-  try {
-    let fixed = 0;
-    await Word.run(async ctx => {
-      const ps = ctx.document.body.paragraphs;
-      ps.load('items/text');
-      await ctx.sync();
-      let artN = 0, listN = 0;
-      for (const p of ps.items) {
-        const t = p.text.trim();
-        if (!t) { listN = 0; continue; }
-
-        const am = t.match(/^第\s*(\d+)\s*条/);
-        if (am) {
-          artN++;
-          const cur = parseInt(am[1]);
-          if (cur !== artN) {
-            p.insertText(t.replace(/^第\s*\d+\s*条/, `第${artN}条`), 'Replace');
-            fixed++;
-            await ctx.sync();
-          }
-          listN = 0; continue;
-        }
-        const lm = t.match(/^(\d+)\.\s/);
-        if (lm) {
-          listN++;
-          const cur = parseInt(lm[1]);
-          if (cur !== listN) {
-            p.insertText(t.replace(/^\d+\./, `${listN}.`), 'Replace');
-            fixed++;
-            await ctx.sync();
-          }
-          continue;
-        }
-        // 全角数字→半角
-        if (/[０-９]/.test(t)) {
-          let nt = t;
-          '０１２３４５６７８９'.split('').forEach((c,i) => { nt = nt.split(c).join(String(i)); });
-          if (nt !== t) { p.insertText(nt, 'Replace'); fixed++; await ctx.sync(); }
-        }
+  Word.run(function(ctx) {
+    var ps = ctx.document.body.paragraphs;
+    ctx.load(ps, 'text');
+    return ctx.sync().then(function() {
+      var artN=0, listN=0, fixed=0;
+      var ops = [];
+      for (var i=0; i<ps.items.length; i++) {
+        var t = ps.items[i].text.trim(); if (!t) { listN=0; continue; }
+        var am = t.match(/^第\s*(\d+)\s*条/);
+        if (am) { artN++; var cur=parseInt(am[1]);
+          if (cur!==artN) { ps.items[i].insertText(t.replace(/^第\s*\d+\s*条/,'第'+artN+'条'),'Replace'); fixed++; }
+          listN=0; continue; }
+        var lm = t.match(/^(\d+)\.\s/);
+        if (lm) { listN++; var cur2=parseInt(lm[1]);
+          if (cur2!==listN) { ps.items[i].insertText(t.replace(/^\d+\./,listN+'.'),'Replace'); fixed++; } }
       }
+      return ctx.sync().then(function(){ return fixed; });
     });
-    toast(`${fixed}件を修正しました`);
-    if (fixed > 0) await runAnalysis();
-  } catch(e) {
-    toast('修正中にエラーが発生しました');
-  } finally {
-    G.fixing = false;
-    document.getElementById('btnFix').disabled = false;
-    document.getElementById('btnFix').textContent = '一括修正';
-  }
+  }).then(function(fixed){
+    toast(fixed+'件を修正しました');
+    if (fixed>0) runAnalysis();
+  }).catch(function(e){ toast('修正エラー: '+e.message); })
+  .finally(function(){ G.fixing=false; document.getElementById('btnFix').disabled=false; document.getElementById('btnFix').textContent='一括修正'; });
 }
 
-// ═══════════════════════════════════════════════════════════
-// e-Gov API  (CORS proxy経由 or 直接)
-// ═══════════════════════════════════════════════════════════
-const EGOV_BASE = 'https://laws.e-gov.go.jp/api/2';
-
-async function egovSearch(keyword) {
-  // キーワードで法令名一覧から絞り込む
-  const url = `${EGOV_BASE}/laws?keyword=${encodeURIComponent(keyword)}&law_type=Act&offset=0&limit=10`;
-  try {
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const j = await r.json();
-    return (j.laws || []).map(l => ({
-      id: l.law_info?.law_id || l.law_revision_id,
-      title: l.revision_info?.law_title || l.law_info?.law_title || '(不明)',
-      num: l.law_info?.law_num || '',
-      type: l.law_info?.law_type || '',
-      revId: l.revision_info?.law_revision_id || '',
-    }));
-  } catch(e) {
-    // v2 失敗時は v1 フォールバック（XML）
-    return await egovSearchV1(keyword);
-  }
+// ═══════════════════════════════════════
+// e-Gov
+// ═══════════════════════════════════════
+function searchLaw() {
+  var kw = document.getElementById('egovInput').value.trim();
+  if (!kw) return;
+  searchLawFor(kw);
 }
 
-async function egovSearchV1(keyword) {
-  const url = `https://elaws.e-gov.go.jp/api/1/lawlists/1`;
-  try {
-    const r = await fetch(url);
-    const text = await r.text();
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(text, 'text/xml');
-    const laws = Array.from(xml.querySelectorAll('LawNameListInfo'));
-    return laws
-      .filter(l => {
-        const name = l.querySelector('LawName')?.textContent || '';
-        return name.includes(keyword);
-      })
-      .slice(0, 10)
-      .map(l => ({
-        id: l.querySelector('LawId')?.textContent || '',
-        title: l.querySelector('LawName')?.textContent || '',
-        num: l.querySelector('LawNo')?.textContent || '',
-        type: '',
-        revId: '',
-      }));
-  } catch(e) {
-    return [];
-  }
+function searchLawFor(keyword) {
+  switchTab('egov');
+  document.getElementById('egovInput').value = keyword;
+  var el = document.getElementById('lawResults');
+  el.innerHTML = '<div class="loading-row"><span class="spin" style="border-color:rgba(0,0,0,.15);border-top-color:var(--blue)"></span>検索中...</div>';
+  fetch('https://laws.e-gov.go.jp/api/2/laws?keyword='+encodeURIComponent(keyword)+'&law_type=Act&limit=10')
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var laws = j.laws || [];
+      if (!laws.length) { el.innerHTML='<div class="empty">「'+esc(keyword)+'」に一致する法令が見つかりませんでした</div>'; return; }
+      el.innerHTML = laws.map(function(l,i){
+        var id = (l.revision_info && l.revision_info.law_revision_id) || (l.law_info && l.law_info.law_id) || '';
+        var title = (l.revision_info && l.revision_info.law_title) || (l.law_info && l.law_info.law_title) || '(不明)';
+        var num = (l.law_info && l.law_info.law_num) || '';
+        return '<div class="law-item" id="law'+i+'" onclick="toggleLaw('+i+',\''+esc(id)+'\')">'+
+          '<div class="law-item-title">'+esc(title)+'</div>'+
+          '<div class="law-item-sub">'+esc(num)+' <a href="https://laws.e-gov.go.jp/law/'+esc(id)+'" target="_blank" onclick="event.stopPropagation()" style="color:var(--blue);font-size:11px">e-Govで開く ↗</a></div>'+
+          '<div class="law-detail" id="lawDetail'+i+'"><div class="loading-row">読み込み中...</div></div>'+
+          '</div>';
+      }).join('');
+    })
+    .catch(function(e){ el.innerHTML='<div class="empty">検索エラー。e-GovサイトはCORSを許可している場合のみ動作します。<br><a href="https://laws.e-gov.go.jp" target="_blank" style="color:var(--blue)">e-Govを直接開く ↗</a></div>'; });
 }
 
-async function fetchLawArticles(lawId) {
-  // v2: 法令全文取得（JSON簡易版）
-  const url = `${EGOV_BASE}/law_data/${lawId}?response_format=simple`;
-  try {
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const j = await r.json();
-    const articles = [];
-    // simple format: law_full_text.articles[]
-    const arts = j.law_full_text?.articles || j.articles || [];
-    arts.slice(0, 8).forEach(a => {
-      articles.push({
-        title: a.article_title || a.article_caption || '',
-        body: a.article_body || a.sentences?.join('\n') || '',
-      });
-    });
-    return articles;
-  } catch(e) {
-    // v1 fallback (XML)
-    return await fetchLawArticlesV1(lawId);
-  }
+function toggleLaw(i, lawId) {
+  var item = document.getElementById('law'+i);
+  var detail = document.getElementById('lawDetail'+i);
+  if (item.classList.contains('open')) { item.classList.remove('open'); return; }
+  item.classList.add('open');
+  fetch('https://laws.e-gov.go.jp/api/2/law_data/'+lawId)
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var arts = (j.law_full_text && j.law_full_text.articles) || j.articles || [];
+      if (!arts.length) { detail.innerHTML='<p style="font-size:11px;color:var(--t3);padding:8px 0">条文データを取得できませんでした。</p>'; return; }
+      detail.innerHTML = arts.slice(0,6).map(function(a){
+        return '<div style="margin-bottom:7px"><div class="law-art-title">'+esc(a.article_title||'')+'</div><div class="law-art-body">'+esc(a.article_body||'')+'</div></div>';
+      }).join('<hr style="border:none;border-top:1px solid var(--border);margin:6px 0">') +
+      '<a class="egov-link" href="https://laws.e-gov.go.jp/law/'+lawId+'" target="_blank">全文をe-Govで見る ↗</a>';
+    })
+    .catch(function(){ detail.innerHTML='<p style="font-size:11px;color:var(--t3);padding:8px 0"><a href="https://laws.e-gov.go.jp/law/'+lawId+'" target="_blank" style="color:var(--blue)">e-Govで直接確認する ↗</a></p>'; });
 }
 
-async function fetchLawArticlesV1(lawId) {
-  const url = `https://elaws.e-gov.go.jp/api/1/lawdata/${lawId}`;
-  try {
-    const r = await fetch(url);
-    const text = await r.text();
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(text, 'text/xml');
-    const articles = [];
-    Array.from(xml.querySelectorAll('Article')).slice(0, 8).forEach(a => {
-      const title = a.querySelector('ArticleTitle')?.textContent || '';
-      const paragraphs = Array.from(a.querySelectorAll('Sentence')).map(s => s.textContent).join('\n');
-      if (title || paragraphs) articles.push({ title, body: paragraphs });
-    });
-    return articles;
-  } catch(e) {
-    return [];
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-// MAIN ANALYSIS
-// ═══════════════════════════════════════════════════════════
-async function runAnalysis() {
+// ═══════════════════════════════════════
+// ANALYSIS
+// ═══════════════════════════════════════
+function runAnalysis() {
   if (G.analyzing) return;
   G.analyzing = true;
-  const btn = document.getElementById('btnAnalyze');
+  var btn = document.getElementById('btnAnalyze');
   btn.innerHTML = '<span class="spin"></span> 分析中...';
   btn.disabled = true;
 
-  try {
-    G.paragraphs = await getParagraphs();
-    G.terms = extractTerms(G.paragraphs);
-    G.formatIssues = detectFormat(G.paragraphs);
-    G.consistIssues = checkConsist(G.paragraphs, G.terms);
-    G.detectedLaws = detectLawNames(G.paragraphs);
-
-    // ハイライト適用
-    await clearHL();
-    if (G.terms.length) await highlightTerms(G.terms);
-    if (G.consistIssues.length) await highlightErrors(G.consistIssues);
-
+  getParagraphs().then(function(paras) {
+    G.paragraphs = paras;
+    G.terms = extractTerms(paras);
+    G.formatIssues = detectFormat(paras);
+    G.consistIssues = checkConsist(paras, G.terms);
+    G.detectedLaws = detectLawNames(paras);
     renderAll();
     document.getElementById('idleState').style.display = 'none';
     document.getElementById('summary').style.display = 'flex';
     document.getElementById('tabBar').style.display = 'flex';
     showPanes();
-
-    const errN = G.consistIssues.filter(i => i.sev === 'error').length;
-    const wrnN = G.consistIssues.filter(i => i.sev === 'warning').length + G.formatIssues.length;
-    toast(`分析完了: 定義語${G.terms.length}件 / 問題${errN+wrnN}件 / 法令${G.detectedLaws.length}件`);
-  } catch(e) {
-    console.error("Analysis error:", e);
-    toast("Word文書を開いた状態で分析してください");
-  } finally {
+    var errN = G.consistIssues.filter(function(i){return i.sev==='error';}).length;
+    toast('分析完了: 定義語'+G.terms.length+'件 / 問題'+(errN + G.formatIssues.length)+'件');
+    if (G.terms.length) return highlightTerms(G.terms);
+  }).catch(function(e) {
+    console.error('Analysis error:', e);
+    toast('エラー: ' + (e.message || String(e)));
+  }).finally(function() {
     G.analyzing = false;
-    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6 3v3l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> 今すぐ分析`;
+    btn.innerHTML = '今すぐ分析';
     btn.disabled = false;
-  }
+  });
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 // RENDER
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 function renderAll() {
-  renderSummary();
-  renderTerms();
-  renderFormat();
-  renderConsist();
-  renderEgov();
-}
-
-function renderSummary() {
-  const errN = G.consistIssues.filter(i => i.sev === 'error').length;
-  const wrnN = G.consistIssues.filter(i => i.sev === 'warning').length + G.formatIssues.length;
-  document.getElementById('sumTerms').textContent = `定義語 ${G.terms.length}`;
-  const er = document.getElementById('sumErrors');
-  er.textContent = `エラー ${errN}`;
-  er.style.display = errN ? 'inline-flex' : 'none';
-  const wr = document.getElementById('sumWarns');
-  wr.textContent = `警告 ${wrnN}`;
-  wr.style.display = wrnN ? 'inline-flex' : 'none';
-  const lw = document.getElementById('sumLaws');
-  lw.textContent = `法令 ${G.detectedLaws.length}`;
-  lw.style.display = G.detectedLaws.length ? 'inline-flex' : 'none';
-
+  var errN = G.consistIssues.filter(function(i){return i.sev==='error';}).length;
+  var wrnN = G.consistIssues.filter(function(i){return i.sev==='warning';}).length + G.formatIssues.length;
+  document.getElementById('sumTerms').textContent = '定義語 '+G.terms.length;
+  var er = document.getElementById('sumErrors'); er.textContent='エラー '+errN; er.style.display=errN?'inline-flex':'none';
+  var wr = document.getElementById('sumWarns'); wr.textContent='警告 '+wrnN; wr.style.display=wrnN?'inline-flex':'none';
+  var lw = document.getElementById('sumLaws'); lw.textContent='法令 '+G.detectedLaws.length; lw.style.display=G.detectedLaws.length?'inline-flex':'none';
   document.getElementById('bdgTerms').textContent = G.terms.length;
   document.getElementById('bdgFormat').textContent = G.formatIssues.length;
   document.getElementById('bdgConsist').textContent = G.consistIssues.length;
   document.getElementById('bdgLaws').textContent = G.detectedLaws.length;
-}
 
-function renderTerms() {
-  const el = document.getElementById('termsList');
-  const desc = document.getElementById('termsDesc');
-  if (!G.terms.length) {
-    desc.textContent = '定義語が見つかりませんでした。';
-    el.innerHTML = '';
-    return;
-  }
-  desc.textContent = `${G.terms.length}件の定義語を検出しました。クリックで詳細表示、e-Govボタンで法令検索します。`;
-  el.innerHTML = G.terms.map((t, i) => `
-    <div class="tc" id="tc${i}" onclick="toggleCard('tc${i}')">
-      <div class="tc-hdr">
-        <span class="tc-name">「${esc(t.term)}」</span>
-        <span class="tc-badge">${t.count}回使用</span>
-      </div>
-      <div class="tc-body">
-        <div class="tc-ctx">…${esc(t.definition)}…</div>
-        <div class="tc-actions">
-          <button class="btn-j" onclick="event.stopPropagation();jumpTo(${t.firstIdx})">定義箇所へ</button>
-          <button class="btn-egov" onclick="event.stopPropagation();searchLawFor('${esc(t.term)}')">e-Govで検索</button>
-        </div>
-      </div>
-    </div>`).join('');
-}
-
-function renderFormat() {
-  const el = document.getElementById('formatList');
-  const desc = document.getElementById('formatDesc');
-  if (!G.formatIssues.length) {
-    desc.textContent = 'フォーマットの問題は見つかりませんでした。';
-    el.innerHTML = '';
-    return;
-  }
-  desc.textContent = `${G.formatIssues.length}件の書式問題を検出しました。`;
-  el.innerHTML = G.formatIssues.map(f => `
-    <div class="ic ic-fmt">
-      <div class="ic-hdr">
-        <span class="ic-type" style="background:#6366f1">フォーマット</span>
-        <span class="ic-term" style="font-size:11px">段落 ${f.idx+1}</span>
-      </div>
-      <div class="ic-desc">${esc(f.issue)}</div>
-      <div class="ic-fix">→ ${esc(f.fix)}</div>
-      <button class="btn-j" onclick="jumpTo(${f.idx})">該当箇所へ</button>
-    </div>`).join('');
-}
-
-function renderConsist() {
-  const el = document.getElementById('consistList');
-  if (!G.consistIssues.length) {
-    el.innerHTML = `<div class="empty">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12" stroke="#16a34a" stroke-width="1.5"/><path d="M9 14l3.5 3.5 6.5-7" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      整合性の問題は見つかりませんでした
-    </div>`;
-    return;
-  }
-  const sorted = [...G.consistIssues].sort((a,b) => a.sev === 'error' ? -1 : 1);
-  el.innerHTML = sorted.map(i => {
-    const cls = i.sev === 'error' ? 'ic-err' : 'ic-wrn';
-    const col = i.sev === 'error' ? 'var(--red)' : 'var(--amber)';
-    return `<div class="ic ${cls}">
-      <div class="ic-hdr">
-        <span class="ic-type" style="background:${col}">${esc(i.type)}</span>
-        <span class="ic-term">「${esc(i.term)}」</span>
-      </div>
-      <div class="ic-desc">${esc(i.desc)}</div>
-      <button class="btn-j" onclick="jumpTo(${i.idx})">該当箇所へ</button>
-    </div>`;
+  // Terms
+  var tEl = document.getElementById('termsList');
+  document.getElementById('termsDesc').textContent = G.terms.length ? G.terms.length+'件の定義語を検出しました。' : '定義語が見つかりませんでした。';
+  tEl.innerHTML = G.terms.map(function(t,i){
+    return '<div class="tc" id="tc'+i+'" onclick="toggleCard(\'tc'+i+'\')">' +
+      '<div class="tc-hdr"><span class="tc-name">「'+esc(t.term)+'」</span><span class="tc-badge">'+t.count+'回使用</span></div>' +
+      '<div class="tc-body"><div class="tc-ctx">…'+esc(t.definition)+'…</div>' +
+      '<div class="tc-actions"><button class="btn-j" onclick="event.stopPropagation();jumpTo('+t.firstIdx+')">定義箇所へ</button>' +
+      '<button class="btn-egov" onclick="event.stopPropagation();searchLawFor(\''+esc(t.term)+'\')">e-Govで検索</button></div></div></div>';
   }).join('');
-}
 
-function renderEgov() {
-  const el = document.getElementById('detectedLaws');
-  if (!G.detectedLaws.length) { el.innerHTML = ''; return; }
-  el.innerHTML = `<p class="pdesc">文書内で検出した法令（クリックでeGov検索）：</p>
-    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">
-      ${G.detectedLaws.map(name => `
-        <button onclick="searchLawFor('${esc(name)}')"
-          style="font-size:11px;padding:3px 9px;border:1px solid var(--border);border-radius:100px;
-                 background:var(--surface);cursor:pointer;color:var(--blue);font-weight:500"
-          onmouseover="this.style.background='var(--blue-l)'"
-          onmouseout="this.style.background='var(--surface)'">
-          ${esc(name)}
-        </button>`).join('')}
-    </div>`;
-}
+  // Format
+  document.getElementById('formatDesc').textContent = G.formatIssues.length ? G.formatIssues.length+'件の書式問題を検出しました。' : '書式の問題は見つかりませんでした。';
+  document.getElementById('formatList').innerHTML = G.formatIssues.map(function(f){
+    return '<div class="ic ic-fmt"><div class="ic-hdr"><span class="ic-type" style="background:#6366f1">フォーマット</span><span class="ic-term" style="font-size:11px">段落 '+(f.idx+1)+'</span></div>' +
+      '<div class="ic-desc">'+esc(f.issue)+'</div><div class="ic-fix">→ '+esc(f.fix)+'</div>' +
+      '<button class="btn-j" onclick="jumpTo('+f.idx+')">該当箇所へ</button></div>';
+  }).join('');
 
-// ═══════════════════════════════════════════════════════════
-// eGov SEARCH UI
-// ═══════════════════════════════════════════════════════════
-async function searchLaw() {
-  const kw = document.getElementById('egovInput').value.trim();
-  if (!kw) return;
-  searchLawFor(kw);
-}
-
-async function searchLawFor(keyword) {
-  switchTab('egov');
-  document.getElementById('egovInput').value = keyword;
-  const btn = document.getElementById('btnSearch');
-  const el = document.getElementById('lawResults');
-  btn.disabled = true;
-  btn.textContent = '検索中...';
-  el.innerHTML = `<div class="loading-row"><span class="spin" style="border-color:rgba(0,0,0,.15);border-top-color:var(--blue)"></span> e-Gov APIを検索中...</div>`;
-  try {
-    const results = await egovSearch(keyword);
-    if (!results.length) {
-      el.innerHTML = `<div class="empty">「${esc(keyword)}」に一致する法令が見つかりませんでした</div>`;
-    } else {
-      el.innerHTML = `<div class="law-list">${results.map((l, i) => `
-        <div class="law-item" id="law${i}" onclick="toggleLaw(${i}, '${esc(l.id)}')">
-          <div class="law-item-title">${esc(l.title)}</div>
-          <div class="law-item-sub">${esc(l.num)} <a class="egov-link" href="https://laws.e-gov.go.jp/law/${esc(l.id)}" target="_blank" onclick="event.stopPropagation()">e-Govで開く ↗</a></div>
-          <div class="law-detail" id="lawDetail${i}">
-            <div class="loading-row"><span class="spin" style="border-color:rgba(0,0,0,.15);border-top-color:var(--blue)"></span> 条文を取得中...</div>
-          </div>
-        </div>`).join('')}</div>`;
-      // 件数を覚えておく
-      el._lawResults = results;
-    }
-  } catch(e) {
-    el.innerHTML = `<div class="empty">検索中にエラーが発生しました: ${esc(e.message)}</div>`;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '検索';
+  // Consist
+  var cEl = document.getElementById('consistList');
+  if (!G.consistIssues.length) {
+    cEl.innerHTML = '<div class="empty"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12" stroke="#16a34a" stroke-width="1.5"/><path d="M9 14l3.5 3.5 6.5-7" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>整合性の問題は見つかりませんでした</div>';
+  } else {
+    cEl.innerHTML = G.consistIssues.slice().sort(function(a,b){return a.sev==='error'?-1:1;}).map(function(i){
+      var cls = i.sev==='error'?'ic-err':'ic-wrn'; var col = i.sev==='error'?'var(--red)':'var(--amber)';
+      return '<div class="ic '+cls+'"><div class="ic-hdr"><span class="ic-type" style="background:'+col+'">'+esc(i.type)+'</span><span class="ic-term">「'+esc(i.term)+'」</span></div>' +
+        '<div class="ic-desc">'+esc(i.desc)+'</div><button class="btn-j" onclick="jumpTo('+i.idx+')">該当箇所へ</button></div>';
+    }).join('');
   }
+
+  // eGov detected
+  var dEl = document.getElementById('detectedLaws');
+  dEl.innerHTML = G.detectedLaws.length ? '<p class="pdesc">文書内で検出した法令：</p><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+
+    G.detectedLaws.map(function(n){
+      return '<button onclick="searchLawFor(\''+esc(n)+'\')" style="font-size:11px;padding:3px 9px;border:1px solid var(--border);border-radius:100px;background:var(--surface);cursor:pointer;color:var(--blue)">'+esc(n)+'</button>';
+    }).join('')+'</div>' : '';
 }
 
-async function toggleLaw(i, lawId) {
-  const item = document.getElementById(`law${i}`);
-  const detail = document.getElementById(`lawDetail${i}`);
-  if (item.classList.contains('open')) {
-    item.classList.remove('open');
-    return;
-  }
-  item.classList.add('open');
-  // 条文取得
-  try {
-    const arts = await fetchLawArticles(lawId);
-    if (!arts.length) {
-      detail.innerHTML = '<p style="font-size:11px;color:var(--t3);padding:8px 0">条文データを取得できませんでした。e-Govサイトでご確認ください。</p>';
-    } else {
-      detail.innerHTML = arts.map(a => `
-        <div class="law-article">
-          <div class="law-art-title">${esc(a.title)}</div>
-          <div class="law-art-body">${esc(a.body)}</div>
-        </div>`).join('<hr style="border:none;border-top:1px solid var(--border);margin:6px 0">') +
-        `<a class="egov-link" href="https://laws.e-gov.go.jp/law/${lawId}" target="_blank">全文をe-Govで見る ↗</a>`;
-    }
-  } catch(e) {
-    detail.innerHTML = `<p style="font-size:11px;color:var(--red);padding:8px 0">取得エラー: ${esc(e.message)}</p>`;
-  }
-}
-
-// ── Modal
-function openModal(title, bodyHTML) {
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalBody').innerHTML = bodyHTML;
-  document.getElementById('modal').classList.add('show');
-}
-function closeModal() {
-  document.getElementById('modal').classList.remove('show');
-}
-
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 // UI HELPERS
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 function switchTab(id) {
   G.activeTab = id;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === id));
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('on', t.dataset.tab===id); });
   showPanes();
 }
-
 function showPanes() {
-  ['terms','format','consist','egov'].forEach(id => {
-    const p = document.getElementById(`pane-${id}`);
-    if (p) p.style.display = G.activeTab === id ? 'block' : 'none';
+  ['terms','format','consist','egov'].forEach(function(id){
+    var p = document.getElementById('pane-'+id);
+    if (p) p.style.display = G.activeTab===id ? 'block' : 'none';
   });
 }
+function toggleCard(id){ document.getElementById(id).classList.toggle('open'); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+var toastTimer;
+function toast(msg){ var el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(function(){ el.classList.remove('show'); },3000); }
 
-function toggleCard(id) {
-  document.getElementById(id)?.classList.toggle('open');
-}
-
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-let toastTimer;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
-}
+// ═══════════════════════════════════════
+// INIT - office.js読み込み後に確実に実行
+// ═══════════════════════════════════════
+Office.onReady(function(info) {
+  console.log('Office.onReady:', info);
+});
 </script>
 </body>
 </html>
