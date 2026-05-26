@@ -450,6 +450,17 @@ function checkOkurigana(paragraphs) {
         idx: firstIdx, occurrences: occurrences, recommended: recommended });
     }
   }
+  var kh = [
+    ["及び", "および"],
+    ["又は", "または"],
+    ["並びに", "ならびに"],
+    ["若しくは", "もしくは"],
+    ["但し", "ただし"],
+    ["直ちに", "ただちに"],
+    ["予め", "あらかじめ"],
+    ["既に", "すでに"],
+    ["更に", "さらに"]
+  ];
   groups.forEach(checkGroup);
   kh.forEach(checkGroup);
   paragraphs.forEach(function(t, idx) {
