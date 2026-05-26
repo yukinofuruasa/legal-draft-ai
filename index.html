@@ -408,6 +408,47 @@ function checkOkurigana(paragraphs) {
     ["\u7acb\u3066\u66ff\u3048", "\u7acb\u66ff\u3048", "\u7acb\u66ff"],
     ["\u5272\u308a\u5f53\u3066", "\u5272\u5f53\u3066", "\u5272\u5f53"]
   ];
+  // 語の後に助詞・句読点・括弧・スペース・文末が来る場合のみマッチ（活用形を除外）
+  var wordBoundary = /[\u3001\u3002\u300d\u300f\uff09\u3092\u3067\u306f\u306b\u3078\u304b\u304c\u3092\u3082\u3068\u3055\u308c\u3057\u306b\u3088\u308b\u306e\u308b\u3088\u3046\u305f\u3001\u3002\s$]/;
+  function wordMatch(text, word) {
+    var idx = 0;
+    while (true) {
+      var pos = text.indexOf(word, idx);
+      if (pos < 0) return false;
+      var after = text.charAt(pos + word.length);
+      // 後ろが活用語尾でない場合のみマッチ
+      // ひらがな（あ行〜わ行）が続く場合は活用形の可能性が高いので除外
+      // ただし「を、は、が、に、で、へ、も、と、の、や、か」などの助詞はOK
+      var JOSHI = "\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3055\u308c";
+      if (after === "" || after === "\u3001" || after === "\u3002" ||
+          after === "\u300d" || after === "\uff09" || after === "\u3000" ||
+          after === " " || after === "\n" || JOSHI.indexOf(after) >= 0) {
+        return true;
+      }
+      idx = pos + 1;
+    }
+    return false;
+  }
+  function wordMatchAll(text, word, paragraphs) {
+    var result = [];
+    paragraphs.forEach(function(p, i) {
+      var idx2 = 0;
+      while (true) {
+        var pos = p.indexOf(word, idx2);
+        if (pos < 0) break;
+        var after = p.charAt(pos + word.length);
+        var JOSHI = "\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3055\u308c";
+        if (after === "" || after === "\u3001" || after === "\u3002" ||
+            after === "\u300d" || after === "\uff09" || after === "\u3000" ||
+            after === " " || after === "\n" || JOSHI.indexOf(after) >= 0) {
+          result.push({ word: word, idx: i });
+          break; // 同一段落は1回だけ
+        }
+        idx2 = pos + 1;
+      }
+    });
+    return result;
+  }
   var kh = [
     ["\u53ca\u3073", "\u304a\u3088\u3073"],
     ["\u53c8\u306f", "\u307e\u305f\u306f"],
@@ -420,15 +461,13 @@ function checkOkurigana(paragraphs) {
     ["\u66f4\u306b", "\u3055\u3089\u306b"]
   ];
   function checkGroup(group) {
-    var found = group.filter(function(w) { return text.indexOf(w) >= 0; });
+    var found = group.filter(function(w) { return wordMatch(text, w); });
     if (found.length > 1) {
-      // 各語の出現箇所を収集
+      // 各語の出現箇所を収集（境界チェック付き）
       var occurrences = [];
       found.forEach(function(w) {
-        paragraphs.forEach(function(p, i) {
-          if (p.indexOf(w) >= 0) {
-            occurrences.push({ word: w, idx: i });
-          }
+        wordMatchAll(text, w, paragraphs).forEach(function(o) {
+          occurrences.push(o);
         });
       });
       var labels = found.map(function(w) { return "\u300c" + w + "\u300d"; }).join("\u3068");
