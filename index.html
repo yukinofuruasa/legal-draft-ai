@@ -16,51 +16,32 @@
   --indigo:#4f46e5;--indigo-l:#eef2ff;
   --r:8px;--rs:5px;
 }
-body{font-family:"Yu Gothic UI","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;
-     font-size:13px;background:var(--bg);color:var(--text);line-height:1.5;
-     height:100vh;display:flex;flex-direction:column;overflow:hidden}
-.hdr{display:flex;align-items:center;justify-content:space-between;
-     padding:9px 12px;background:var(--accent);flex-shrink:0;gap:8px}
-.hdr-logo{display:flex;align-items:center;gap:7px}
+body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:var(--bg);color:var(--text);line-height:1.5;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--accent);flex-shrink:0}
 .hdr-title{color:#e2e8f0;font-size:13px;font-weight:600}
-.btn-analyze{display:flex;align-items:center;gap:5px;background:var(--blue);color:#fff;
-             border:none;padding:5px 11px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer}
-.btn-analyze:hover:not(:disabled){background:#1d4ed8}
-.btn-analyze:disabled{opacity:.6;cursor:not-allowed}
-.spin{width:11px;height:11px;border:2px solid rgba(255,255,255,.3);
-      border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
-.summary{display:flex;align-items:center;gap:5px;flex-wrap:wrap;
-         padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
-.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:100px;font-size:11px;font-weight:600}
+#btnAnalyze{background:var(--blue);color:#fff;border:none;padding:5px 11px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer}
+#btnAnalyze:disabled{opacity:.6;cursor:not-allowed}
+.summary{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:100px;font-size:11px;font-weight:600}
 .pill-b{background:var(--blue-l);color:#1d4ed8}
 .pill-r{background:var(--red-l);color:#b91c1c}
 .pill-a{background:var(--amber-l);color:#92400e}
 .pill-g{background:var(--green-l);color:#15803d}
-.btn-xs{font-size:11px;color:var(--t3);background:none;border:1px solid var(--border);
-        padding:2px 6px;border-radius:var(--rs);cursor:pointer;margin-left:auto}
+.btn-xs{font-size:11px;color:var(--t3);background:none;border:1px solid var(--border);padding:2px 6px;border-radius:var(--rs);cursor:pointer;margin-left:auto}
 .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
-.tab{flex:1;padding:8px 2px;background:none;border:none;font-size:11px;
-     color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;
-     gap:4px;border-bottom:2px solid transparent;transition:all .15s}
-.tab:hover{background:var(--s2)}
+.tab{flex:1;padding:8px 2px;background:none;border:none;font-size:11px;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;border-bottom:2px solid transparent}
 .tab.on{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
-.bdg{background:var(--blue);color:#fff;font-size:10px;padding:0 4px;
-     border-radius:100px;min-width:15px;text-align:center;line-height:15px;font-weight:700}
+.bdg{background:var(--blue);color:#fff;font-size:10px;padding:0 4px;border-radius:100px;min-width:15px;text-align:center;line-height:15px;font-weight:700}
 .content{flex:1;overflow-y:auto}
 .pane{display:none;padding:10px 11px}
 .pane.on{display:block}
 .pdesc{font-size:11px;color:var(--t3);margin-bottom:9px;line-height:1.4}
-.idle{padding:36px 20px;text-align:center;color:var(--t3);
-      display:flex;flex-direction:column;align-items:center;gap:10px}
+.idle{padding:36px 20px;text-align:center;color:var(--t3);display:flex;flex-direction:column;align-items:center;gap:10px}
 .idle p{font-size:13px;line-height:1.6}
 .idle .sub{font-size:11px}
-.empty{padding:24px 14px;text-align:center;color:var(--t3);
-       display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px}
-.tc{background:var(--surface);border:1px solid var(--border);
-    border-radius:var(--r);margin-bottom:6px;overflow:hidden;cursor:pointer}
-.tc:hover{border-color:#93c5fd}
-.tc-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 11px}
+.empty{padding:24px 14px;text-align:center;color:var(--t3);display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px}
+.tc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px;overflow:hidden}
+.tc-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;cursor:pointer}
 .tc-name{font-weight:600;font-size:13px;color:var(--blue)}
 .tc-badge{font-size:10px;background:var(--blue-l);color:var(--blue);padding:1px 6px;border-radius:100px;font-weight:600}
 .tc-body{padding:0 11px 9px;border-top:1px solid var(--border);display:none}
@@ -75,427 +56,536 @@ body{font-family:"Yu Gothic UI","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;
 .ic-type{font-size:10px;color:#fff;padding:1px 6px;border-radius:100px;font-weight:700}
 .ic-term{font-size:12px;font-weight:600}
 .ic-desc{font-size:11px;color:var(--t2);margin-bottom:5px;line-height:1.5}
-.ic-fix{font-size:11px;color:var(--indigo);margin-bottom:5px;font-style:italic}
+.ic-fix{font-size:11px;color:var(--indigo);margin-bottom:5px}
 .egov-search{display:flex;gap:6px;margin-bottom:10px}
 .egov-input{flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:var(--rs);font-size:12px;font-family:inherit}
-.egov-input:focus{outline:none;border-color:var(--blue)}
 .btn-search{background:var(--blue);color:#fff;border:none;padding:6px 11px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer}
 .law-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:8px 11px;cursor:pointer;margin-bottom:5px}
-.law-item:hover{border-color:#93c5fd}
 .law-item-title{font-weight:600;font-size:12px;color:var(--blue);margin-bottom:2px}
 .law-item-sub{font-size:10px;color:var(--t3)}
 .law-detail{margin-top:8px;border-top:1px solid var(--border);padding-top:8px;display:none}
 .law-item.open .law-detail{display:block}
 .law-art-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px}
 .law-art-body{font-size:11px;color:var(--t2);line-height:1.6;white-space:pre-wrap;word-break:break-all}
-.egov-link{display:inline-block;font-size:11px;color:var(--blue);margin-top:6px}
 .btn-j{font-size:11px;color:var(--blue);background:var(--blue-l);border:none;padding:3px 8px;border-radius:var(--rs);cursor:pointer}
-.btn-j:hover{background:#bfdbfe}
 .btn-egov{font-size:11px;color:var(--green);background:var(--green-l);border:none;padding:3px 8px;border-radius:var(--rs);cursor:pointer}
 .arow{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px}
 .btn-fix{flex-shrink:0;font-size:11px;font-weight:600;background:var(--indigo);color:#fff;border:none;padding:4px 10px;border-radius:var(--rs);cursor:pointer}
 .btn-fix:disabled{opacity:.6;cursor:not-allowed}
 .sev-leg{display:flex;gap:10px;font-size:11px;margin-bottom:9px;color:var(--t2)}
 .loading-row{display:flex;align-items:center;gap:8px;padding:16px;font-size:12px;color:var(--t3)}
-.toast{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
-       background:#1a2332;color:#fff;font-size:12px;padding:7px 14px;
-       border-radius:100px;box-shadow:0 4px 12px rgba(0,0,0,.2);
-       max-width:92%;text-align:center;z-index:200;pointer-events:none;
-       opacity:0;transition:opacity .2s}
+.toast{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:#1a2332;color:#fff;font-size:12px;padding:7px 14px;border-radius:100px;max-width:92%;text-align:center;z-index:200;pointer-events:none;opacity:0;transition:opacity .2s}
 .toast.show{opacity:1}
 </style>
 </head>
 <body>
-
 <div class="hdr">
-  <div class="hdr-logo">
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <rect width="20" height="20" rx="5" fill="#1e3a5f"/>
-      <path d="M5 6h10M5 10h7M5 14h9" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
-    </svg>
-    <span class="hdr-title">LegalDraft AI</span>
-  </div>
-  <button class="btn-analyze" id="btnAnalyze" onclick="runAnalysis()">今すぐ分析</button>
+  <span class="hdr-title">LegalDraft AI</span>
+  <button id="btnAnalyze">&#20170;&#12377;&#12368;&#20998;&#26512;</button>
 </div>
-
 <div class="summary" id="summary" style="display:none">
-  <span class="pill pill-b" id="sumTerms">定義語 0</span>
-  <span class="pill pill-r" id="sumErrors" style="display:none">エラー 0</span>
-  <span class="pill pill-a" id="sumWarns" style="display:none">警告 0</span>
-  <span class="pill pill-g" id="sumLaws" style="display:none">法令 0</span>
-  <button class="btn-xs" onclick="clearHL()">HL解除</button>
+  <span class="pill pill-b" id="sumTerms">&#23450;&#32681;&#35486; 0</span>
+  <span class="pill pill-r" id="sumErrors" style="display:none">&#12456;&#12521;&#12540; 0</span>
+  <span class="pill pill-a" id="sumWarns" style="display:none">&#35686;&#21578; 0</span>
+  <span class="pill pill-g" id="sumLaws" style="display:none">&#27861;&#20551; 0</span>
+  <button class="btn-xs" id="btnHL">HL&#35299;&#38500;</button>
 </div>
-
 <div class="tabs" id="tabBar" style="display:none">
-  <button class="tab on" data-tab="terms" onclick="switchTab('terms')">定義語<span class="bdg" id="bdgTerms">0</span></button>
-  <button class="tab" data-tab="format" onclick="switchTab('format')">書式<span class="bdg" id="bdgFormat">0</span></button>
-  <button class="tab" data-tab="consist" onclick="switchTab('consist')">整合性<span class="bdg" id="bdgConsist">0</span></button>
-  <button class="tab" data-tab="egov" onclick="switchTab('egov')">e-Gov<span class="bdg" id="bdgLaws">0</span></button>
+  <button class="tab on" data-tab="terms">&#23450;&#32681;&#35486;<span class="bdg" id="bdgTerms">0</span></button>
+  <button class="tab" data-tab="format">&#26360;&#24335;<span class="bdg" id="bdgFormat">0</span></button>
+  <button class="tab" data-tab="consist">&#25972;&#21512;&#24615;<span class="bdg" id="bdgConsist">0</span></button>
+  <button class="tab" data-tab="egov">e-Gov<span class="bdg" id="bdgLaws">0</span></button>
 </div>
-
 <div class="content">
   <div class="idle" id="idleState">
     <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
       <rect x="6" y="3" width="32" height="38" rx="4" stroke="var(--border)" stroke-width="1.5" fill="none"/>
       <path d="M13 12h18M13 18h12M13 24h15M13 30h10" stroke="var(--border)" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
-    <p>「今すぐ分析」を押して<br/>ドキュメントを解析します</p>
-    <p class="sub">定義語 · 書式 · 整合性 · e-Gov法令参照</p>
+    <p>&#20170;&#12377;&#12368;&#20998;&#26512;&#12434;&#25누&#12375;&#12390;&#12489;&#12461;&#12517;&#12513;&#12531;&#12488;&#12434;&#35299;&#26512;&#12375;&#12414;&#12377;</p>
+    <p class="sub">&#23450;&#32681;&#35486; &#12539; &#26360;&#24335; &#12539; &#25972;&#21512;&#24615; &#12539; &#34920;&#35352;&#12422;&#12428; &#12539; e-Gov&#27861;&#20551;&#21442;&#29031;</p>
   </div>
-  <div class="pane on" id="pane-terms" style="display:none"><p class="pdesc" id="termsDesc"></p><div id="termsList"></div></div>
-  <div class="pane" id="pane-format" style="display:none"><div class="arow"><p class="pdesc" id="formatDesc" style="margin-bottom:0"></p><button class="btn-fix" id="btnFix" onclick="applyFix()">一括修正</button></div><div id="formatList"></div></div>
-  <div class="pane" id="pane-consist" style="display:none"><div class="sev-leg"><span style="color:var(--red)">● エラー</span><span style="color:var(--amber)">● 警告</span></div><div id="consistList"></div></div>
+  <div class="pane on" id="pane-terms" style="display:none">
+    <p class="pdesc" id="termsDesc"></p>
+    <div id="termsList"></div>
+  </div>
+  <div class="pane" id="pane-format" style="display:none">
+    <div class="arow">
+      <p class="pdesc" id="formatDesc" style="margin-bottom:0"></p>
+      <button class="btn-fix" id="btnFix">&#19968;&#25324;&#20462;&#27491;</button>
+    </div>
+    <div id="formatList"></div>
+  </div>
+  <div class="pane" id="pane-consist" style="display:none">
+    <div class="sev-leg">
+      <span style="color:var(--red)">&#9679; &#12456;&#12521;&#12540;</span>
+      <span style="color:var(--amber)">&#9679; &#35686;&#21578;</span>
+    </div>
+    <div id="consistList"></div>
+  </div>
   <div class="pane" id="pane-egov" style="display:none">
-    <div style="padding:10px 11px">
+    <div style="padding:10px 0">
       <div class="egov-search">
-        <input class="egov-input" id="egovInput" type="text" placeholder="法令名を検索（例: 民法）" onkeydown="if(event.key==='Enter')searchLaw()"/>
-        <button class="btn-search" id="btnSearch" onclick="searchLaw()">検索</button>
+        <input class="egov-input" id="egovInput" type="text" placeholder="&#27861;&#20551;&#21517;&#12434;&#26908;&#32034;&#65288;&#20363;: &#27665;&#27861;&#65289;"/>
+        <button class="btn-search" id="btnSearch">&#26908;&#32034;</button>
       </div>
       <div id="detectedLaws"></div>
       <div id="lawResults"></div>
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
-<!-- office.js は body の最後に読み込む -->
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
 <script>
-// ═══════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════
-var G = { paragraphs:[], terms:[], formatIssues:[], consistIssues:[], detectedLaws:[], activeTab:'terms', analyzing:false, fixing:false };
 
-// ═══════════════════════════════════════
+(function() {
+"use strict";
+
+var G = {
+  paragraphs: [], terms: [], formatIssues: [], consistIssues: [],
+  detectedLaws: [], activeTab: "terms", analyzing: false, fixing: false
+};
+
 // ENGINE
-// ═══════════════════════════════════════
 function extractTerms(paragraphs) {
   var map = {};
-  var pats = [
-    /「([^」]{1,25})」(?:という|と総称する|とする|といい)/g,
-    /（以下[、，]?\s*「([^」]{1,25})」(?:という|と総称する|とする)?）/g,
-    /\(以下[、，]?\s*「([^」]{1,25})」(?:という|と総称する)?\)/g,
-    /\(hereinafter\s+"([^"]{1,25})"\)/gi,
-  ];
+  var p1 = /\u300c([^\u300d]{1,25})\u300d(?:\u3068\u3044\u3046|\u3068\u7dcf\u79f0\u3059\u308b|\u3068\u3059\u308b|\u3068\u3044\u3044)/g;
+  var p2 = /\uff08\u4ee5\u4e0b[\u3001\uff0c]?\s*\u300c([^\u300d]{1,25})\u300d(?:\u3068\u3044\u3046|\u3068\u7dcf\u79f0\u3059\u308b|\u3068\u3059\u308b)?\uff09/g;
+  var p3 = /\(hereinafter\s+"([^"]{1,25})"\)/gi;
+  var pats = [p1, p2, p3];
   paragraphs.forEach(function(text, idx) {
     pats.forEach(function(pat) {
       pat.lastIndex = 0;
       var m;
       while ((m = pat.exec(text)) !== null) {
         var term = m[1].trim();
-        if (!term || term.length < 1) continue;
+        if (!term) continue;
         if (!map[term]) {
           var s = Math.max(0, m.index - 15);
           var e = Math.min(text.length, m.index + 70);
-          map[term] = { term:term, definition:text.slice(s,e).trim(), firstIdx:idx, count:1 };
+          map[term] = { term: term, definition: text.slice(s, e).trim(), firstIdx: idx, count: 1 };
         } else { map[term].count++; }
       }
     });
   });
-  return Object.values(map).sort(function(a,b){ return a.firstIdx - b.firstIdx; });
+  return Object.keys(map).map(function(k) { return map[k]; })
+    .sort(function(a, b) { return a.firstIdx - b.firstIdx; });
 }
 
 function detectFormat(paragraphs) {
-  var issues = []; var artN = 0; var listN = 0;
+  var issues = [], artN = 0, listN = 0;
   paragraphs.forEach(function(raw, idx) {
-    var t = raw.trim(); if (!t) { listN = 0; return; }
-    var am = t.match(/^第\s*(\d+)\s*条/);
-    if (am) { artN++; var cur = parseInt(am[1]);
-      if (artN > 1 && cur !== artN) issues.push({ idx:idx, text:t.slice(0,55), issue:'条番号の不連続: 第'+cur+'条（第'+artN+'条が期待されます）', fix:'第'+artN+'条' });
-      listN = 0; return; }
+    var t = raw.trim();
+    if (!t) { listN = 0; return; }
+    var am = t.match(/^\u7b2c\s*(\d+)\s*\u6761/);
+    if (am) {
+      artN++;
+      var cur = parseInt(am[1]);
+      if (artN > 1 && cur !== artN)
+        issues.push({ idx: idx, text: t.slice(0, 55),
+          issue: "\u6761\u756a\u53f7\u306e\u4e0d\u9023\u7d9a: \u7b2c" + cur + "\u6761\uff08\u7b2c" + artN + "\u6761\u304c\u671f\u5f85\u3055\u308c\u307e\u3059\uff09",
+          fix: "\u7b2c" + artN + "\u6761" });
+      listN = 0; return;
+    }
     var lm = t.match(/^(\d+)\.\s/);
-    if (lm) { listN++; var cur2 = parseInt(lm[1]);
-      if (cur2 !== listN && cur2 !== 1) issues.push({ idx:idx, text:t.slice(0,55), issue:'リスト番号の不連続: '+cur2+'（'+listN+'が期待）', fix:listN+'.' }); return; }
-    if (/[０-９]/.test(t) && /[0-9]/.test(t)) issues.push({ idx:idx, text:t.slice(0,55), issue:'全角・半角数字が混在', fix:'半角数字に統一' });
-    if (/[、。]/.test(t) && /[，．]/.test(t)) issues.push({ idx:idx, text:t.slice(0,55), issue:'句読点スタイルが混在（、。と，．）', fix:'どちらかに統一' });
+    if (lm) {
+      listN++;
+      var cur2 = parseInt(lm[1]);
+      if (cur2 !== listN && cur2 !== 1)
+        issues.push({ idx: idx, text: t.slice(0, 55),
+          issue: "\u30ea\u30b9\u30c8\u756a\u53f7\u306e\u4e0d\u9023\u7d9a: " + cur2 + "\uff08" + listN + "\u304c\u671f\u5f85\uff09",
+          fix: listN + "." });
+      return;
+    }
+    if (/[\uff10-\uff19]/.test(t) && /[0-9]/.test(t))
+      issues.push({ idx: idx, text: t.slice(0, 55),
+        issue: "\u5168\u89d2\u30fb\u534a\u89d2\u6570\u5b57\u304c\u6df7\u5728", fix: "\u534a\u89d2\u6570\u5b57\u306b\u7d71\u4e00" });
   });
   return issues;
 }
 
 function checkConsist(paragraphs, terms) {
   var issues = [];
-  var skip = new Set(['以下','甲','乙','丙','丁','当事者','本契約','本件','本条','前条','次条','前項','本項','同条','同項','前号']);
+  var skip = ["\u4ee5\u4e0b","\u7532","\u4e59","\u4e19","\u4e01","\u5f53\u4e8b\u8005","\u672c\u5951\u7d04","\u672c\u4ef6","\u672c\u6761","\u524d\u6761","\u6b21\u6761","\u524d\u9805","\u672c\u9805","\u540c\u6761","\u540c\u9805","\u524d\u53f7"];
   var defCount = {};
-  terms.forEach(function(t){ defCount[t.term] = (defCount[t.term]||0)+1; });
-  Object.keys(defCount).forEach(function(term){
-    if (defCount[term]>1) issues.push({ sev:'error', type:'定義重複', term:term, desc:'「'+term+'」が'+defCount[term]+'箇所で定義されています', idx:terms.find(function(t){return t.term===term;}).firstIdx });
+  terms.forEach(function(t) { defCount[t.term] = (defCount[t.term] || 0) + 1; });
+  Object.keys(defCount).forEach(function(term) {
+    if (defCount[term] > 1) {
+      var first = terms.filter(function(t) { return t.term === term; })[0];
+      issues.push({ sev: "error", type: "\u5b9a\u7fa9\u91cd\u8907", term: term,
+        desc: "\u300c" + term + "\u300d\u304c" + defCount[term] + "\u7b87\u6240\u3067\u5b9a\u7fa9\u3055\u308c\u3066\u3044\u307e\u3059",
+        idx: first ? first.firstIdx : 0 });
+    }
   });
   paragraphs.forEach(function(text, idx) {
-    var usePat = /「([^」]{1,20})」/g; var m;
-    while ((m = usePat.exec(text)) !== null) {
-      var w = m[1].trim(); if (skip.has(w) || w.length < 2) continue;
-      var isDef = terms.some(function(t){ return t.term===w && t.firstIdx<=idx; });
-      var hasDef = /「[^」]+」(?:という|と総称する|とする|といい)/.test(text) || /（以下[、，]?「/.test(text);
-      if (!isDef && !hasDef) issues.push({ sev:'warning', type:'未定義語', term:w, desc:'「'+w+'」が参照されていますが定義が見当たりません', idx:idx });
-    }
-    var artRefRe = /第\s*(\d+)\s*条/g;
-    while ((m = artRefRe.exec(text)) !== null) {
-      var refN = parseInt(m[1]);
-      var exists = paragraphs.some(function(p){ return new RegExp('^第\\s*'+refN+'\\s*条').test(p.trim()); });
-      if (!exists) issues.push({ sev:'warning', type:'参照エラー', term:'第'+refN+'条', desc:'第'+refN+'条を参照していますが文書内に見つかりません', idx:idx });
+    var re = /\u300c([^\u300d]{1,20})\u300d/g, m;
+    while ((m = re.exec(text)) !== null) {
+      var w = m[1].trim();
+      if (skip.indexOf(w) >= 0 || w.length < 2) continue;
+      var isDef = terms.some(function(t) { return t.term === w && t.firstIdx <= idx; });
+      var hasDef = /\u300c[^\u300d]+\u300d(?:\u3068\u3044\u3046|\u3068\u7dcf\u79f0\u3059\u308b)/.test(text)
+                || /\uff08\u4ee5\u4e0b[\u3001\uff0c]?\u300c/.test(text);
+      if (!isDef && !hasDef)
+        issues.push({ sev: "warning", type: "\u672a\u5b9a\u7fa9\u8a9e", term: w,
+          desc: "\u300c" + w + "\u300d\u304c\u53c2\u7167\u3055\u308c\u3066\u3044\u307e\u3059\u304c\u5b9a\u7fa9\u304c\u898b\u5f53\u305f\u308a\u307e\u305b\u3093",
+          idx: idx });
     }
   });
-  var seen = new Set();
-  return issues.filter(function(i){ var k=i.type+':'+i.term+':'+i.idx; if(seen.has(k))return false; seen.add(k); return true; });
+  var seen = {};
+  return issues.filter(function(i) {
+    var k = i.type + ":" + i.term + ":" + i.idx;
+    if (seen[k]) return false; seen[k] = true; return true;
+  });
 }
 
-var LAW_NAMES = ['民法','商法','会社法','労働基準法','個人情報保護法','不正競争防止法','特許法','著作権法','消費者契約法','下請法','独占禁止法'];
+function checkOkurigana(paragraphs) {
+  var issues = [];
+  var text = paragraphs.join(" ");
+  var groups = [
+    ["\u53d6\u308a\u6d88\u3057", "\u53d6\u6d88\u3057", "\u53d6\u6d88"],
+    ["\u7533\u3057\u8fbc\u307f", "\u7533\u8fbc\u307f", "\u7533\u8fbc"],
+    ["\u652f\u6255\u3044", "\u652f\u6255"],
+    ["\u5f15\u304d\u6e21\u3057", "\u5f15\u6e21\u3057", "\u5f15\u6e21"],
+    ["\u8cb8\u3057\u4ed8\u3051", "\u8cb8\u4ed8\u3051", "\u8cb8\u4ed8"],
+    ["\u501f\u308a\u5165\u308c", "\u501f\u5165\u308c", "\u501f\u5165"],
+    ["\u7acb\u3066\u66ff\u3048", "\u7acb\u66ff\u3048", "\u7acb\u66ff"],
+    ["\u5272\u308a\u5f53\u3066", "\u5272\u5f53\u3066", "\u5272\u5f53"]
+  ];
+  var kh = [
+    ["\u53ca\u3073", "\u304a\u3088\u3073"],
+    ["\u53c8\u306f", "\u307e\u305f\u306f"],
+    ["\u4e26\u3073\u306b", "\u306a\u3089\u3073\u306b"],
+    ["\u82e5\u3057\u304f\u306f", "\u3082\u3057\u304f\u306f"],
+    ["\u4f46\u3057", "\u305f\u3060\u3057"],
+    ["\u76f4\u3061\u306b", "\u305f\u3060\u3061\u306b"],
+    ["\u4e88\u3081", "\u3042\u3089\u304b\u3058\u3081"],
+    ["\u65e2\u306b", "\u3059\u3067\u306b"],
+    ["\u66f4\u306b", "\u3055\u3089\u306b"]
+  ];
+  function checkGroup(group) {
+    var found = group.filter(function(w) { return text.indexOf(w) >= 0; });
+    if (found.length > 1) {
+      var firstIdx = 0;
+      paragraphs.forEach(function(p, i) { if (p.indexOf(found[0]) >= 0 && firstIdx === 0) firstIdx = i; });
+      var labels = found.map(function(w) { return "\u300c" + w + "\u300d"; }).join("\u3068");
+      issues.push({ sev: "warning", type: "\u8868\u8a18\u3086\u308c", term: found.join(" / "),
+        desc: "\u8868\u8a18\u304c\u6df7\u5728\u3057\u3066\u3044\u307e\u3059: " + labels, idx: firstIdx });
+    }
+  }
+  groups.forEach(checkGroup);
+  kh.forEach(checkGroup);
+  paragraphs.forEach(function(t, idx) {
+    if (/[\uff10-\uff19]/.test(t) && /[0-9]/.test(t))
+      issues.push({ sev: "warning", type: "\u8868\u8a18\u3086\u308c", term: "\u5168\u89d2/\u534a\u89d2\u6570\u5b57",
+        desc: "\u5168\u89d2\u6570\u5b57\u3068\u534a\u89d2\u6570\u5b57\u304c\u6df7\u5728\u3057\u3066\u3044\u307e\u3059", idx: idx });
+  });
+  var variants = {
+    "\u672c\u5951\u7d04": ["\u5f53\u8a72\u5951\u7d04", "\u540c\u5951\u7d04"],
+    "\u5f53\u793e": ["\u5c0f\u793e", "\u5f53\u8a72\u4f1a\u793a"],
+    "\u7532": ["\u7532\u793e", "\u7532\u65b9"],
+    "\u4e59": ["\u4e59\u793e", "\u4e59\u65b9"]
+  };
+  Object.keys(variants).forEach(function(main) {
+    if (text.indexOf(main) >= 0) {
+      var used = variants[main].filter(function(v) { return text.indexOf(v) >= 0; });
+      if (used.length > 0)
+        issues.push({ sev: "warning", type: "\u8868\u8a18\u3086\u308c", term: main + " / " + used.join(" / "),
+          desc: "\u300c" + main + "\u300d\u3068\u5225\u8868\u8a18\u300c" + used.join("\u300d\u300c") + "\u300d\u304c\u6df7\u5728\u3057\u3066\u3044\u307e\u3059",
+          idx: 0 });
+    }
+  });
+  return issues;
+}
+
+var LAW_NAMES = ["\u6c11\u6cd5","\u5546\u6cd5","\u4f1a\u793e\u6cd5","\u52b4\u50cd\u57fa\u6e96\u6cd5","\u500b\u4eba\u60c5\u5831\u4fdd\u8b77\u6cd5","\u4e0d\u6b63\u7af6\u4e89\u9632\u6b62\u6cd5","\u7279\u8a31\u6cd5","\u8457\u4f5c\u6a29\u6cd5","\u6d88\u8cbb\u8005\u5951\u7d04\u6cd5","\u4e0b\u8acb\u6cd5","\u72ec\u5360\u7981\u6b62\u6cd5"];
 function detectLawNames(paragraphs) {
-  var found = new Set(); var text = paragraphs.join(' ');
-  LAW_NAMES.forEach(function(n){ if(text.includes(n)) found.add(n); });
-  var re = /([^\s「」（）、。]{2,10}法)/g; var m;
-  while((m=re.exec(text))!==null) found.add(m[1]);
-  return Array.from(found).filter(function(n){ return n.length>=2 && n.length<=15; }).slice(0,15);
+  var found = {}, text = paragraphs.join(" ");
+  LAW_NAMES.forEach(function(n) { if (text.indexOf(n) >= 0) found[n] = 1; });
+  var re = /([^\s\u300c\u300d\uff08\uff09\u3001\u3002]{2,8}\u6cd5)/g, m;
+  while ((m = re.exec(text)) !== null) found[m[1]] = 1;
+  return Object.keys(found).filter(function(n) { return n.length >= 2 && n.length <= 12; }).slice(0, 15);
 }
 
-// ═══════════════════════════════════════
 // WORD API
-// ═══════════════════════════════════════
 function getParagraphs() {
   return Word.run(function(ctx) {
     var ps = ctx.document.body.paragraphs;
-    ctx.load(ps, 'text');
+    ctx.load(ps, "text");
     return ctx.sync().then(function() {
       var texts = [];
-      for (var i = 0; i < ps.items.length; i++) {
-        texts.push(ps.items[i].text || '');
-      }
+      for (var i = 0; i < ps.items.length; i++) texts.push(ps.items[i].text || "");
       return texts;
-    });
-  });
-}
-
-function highlightTerms(terms) {
-  return Word.run(function(ctx) {
-    var body = ctx.document.body;
-    var searches = terms.slice(0,10).map(function(t) {
-      return body.search('「'+t.term+'」', { matchCase:true });
-    });
-    searches.forEach(function(s){ ctx.load(s,'font'); });
-    return ctx.sync().then(function() {
-      searches.forEach(function(s) {
-        s.items.forEach(function(r){ r.font.highlightColor = '#FFF3CD'; });
-      });
-      return ctx.sync();
     });
   });
 }
 
 function clearHL() {
   Word.run(function(ctx) {
-    ctx.document.body.font.highlightColor = 'None';
+    ctx.document.body.font.highlightColor = "None";
     return ctx.sync();
-  }).then(function(){ toast('ハイライトを解除しました'); }).catch(function(){});
+  }).then(function() { showToast("\u30cf\u30a4\u30e9\u30a4\u30c8\u3092\u89e3\u9664\u3057\u307e\u3057\u305f"); }).catch(function() {});
 }
 
 function jumpTo(idx) {
   Word.run(function(ctx) {
     var ps = ctx.document.body.paragraphs;
-    ctx.load(ps, 'text');
+    ctx.load(ps, "text");
     return ctx.sync().then(function() {
-      if (idx < ps.items.length) {
-        ps.items[idx].select();
-        return ctx.sync();
-      }
+      if (idx < ps.items.length) { ps.items[idx].select(); return ctx.sync(); }
     });
-  }).catch(function(){});
+  }).catch(function() {});
 }
 
 function applyFix() {
   if (G.fixing) return;
   G.fixing = true;
-  document.getElementById('btnFix').disabled = true;
-  document.getElementById('btnFix').textContent = '修正中...';
+  var btn = document.getElementById("btnFix");
+  btn.disabled = true; btn.textContent = "\u4fee\u6b63\u4e2d...";
   Word.run(function(ctx) {
     var ps = ctx.document.body.paragraphs;
-    ctx.load(ps, 'text');
+    ctx.load(ps, "text");
     return ctx.sync().then(function() {
-      var artN=0, listN=0, fixed=0;
-      var ops = [];
-      for (var i=0; i<ps.items.length; i++) {
-        var t = ps.items[i].text.trim(); if (!t) { listN=0; continue; }
-        var am = t.match(/^第\s*(\d+)\s*条/);
-        if (am) { artN++; var cur=parseInt(am[1]);
-          if (cur!==artN) { ps.items[i].insertText(t.replace(/^第\s*\d+\s*条/,'第'+artN+'条'),'Replace'); fixed++; }
-          listN=0; continue; }
+      var artN = 0, listN = 0, fixed = 0;
+      for (var i = 0; i < ps.items.length; i++) {
+        var t = ps.items[i].text.trim();
+        if (!t) { listN = 0; continue; }
+        var am = t.match(/^\u7b2c\s*(\d+)\s*\u6761/);
+        if (am) {
+          artN++;
+          if (parseInt(am[1]) !== artN) { ps.items[i].insertText(t.replace(/^\u7b2c\s*\d+\s*\u6761/, "\u7b2c" + artN + "\u6761"), "Replace"); fixed++; }
+          listN = 0; continue;
+        }
         var lm = t.match(/^(\d+)\.\s/);
-        if (lm) { listN++; var cur2=parseInt(lm[1]);
-          if (cur2!==listN) { ps.items[i].insertText(t.replace(/^\d+\./,listN+'.'),'Replace'); fixed++; } }
+        if (lm) { listN++; if (parseInt(lm[1]) !== listN) { ps.items[i].insertText(t.replace(/^\d+\./, listN + "."), "Replace"); fixed++; } }
       }
-      return ctx.sync().then(function(){ return fixed; });
+      return ctx.sync().then(function() { return fixed; });
     });
-  }).then(function(fixed){
-    toast(fixed+'件を修正しました');
-    if (fixed>0) runAnalysis();
-  }).catch(function(e){ toast('修正エラー: '+e.message); })
-  .finally(function(){ G.fixing=false; document.getElementById('btnFix').disabled=false; document.getElementById('btnFix').textContent='一括修正'; });
+  }).then(function(fixed) {
+    showToast(fixed + "\u4ef6\u3092\u4fee\u6b63\u3057\u307e\u3057\u305f");
+    if (fixed > 0) runAnalysis();
+  }).catch(function(e) { showToast("\u4fee\u6b63\u30a8\u30e9\u30fc"); })
+  .finally(function() { G.fixing = false; btn.disabled = false; btn.textContent = "\u4e00\u62ec\u4fee\u6b63"; });
 }
 
-// ═══════════════════════════════════════
 // e-Gov
-// ═══════════════════════════════════════
 function searchLaw() {
-  var kw = document.getElementById('egovInput').value.trim();
-  if (!kw) return;
-  searchLawFor(kw);
+  var kw = document.getElementById("egovInput").value.trim();
+  if (kw) searchLawFor(kw);
 }
 
 function searchLawFor(keyword) {
-  switchTab('egov');
-  document.getElementById('egovInput').value = keyword;
-  var el = document.getElementById('lawResults');
-  el.innerHTML = '<div class="loading-row"><span class="spin" style="border-color:rgba(0,0,0,.15);border-top-color:var(--blue)"></span>検索中...</div>';
-  fetch('https://laws.e-gov.go.jp/api/2/laws?keyword='+encodeURIComponent(keyword)+'&law_type=Act&limit=10')
-    .then(function(r){ return r.json(); })
-    .then(function(j){
+  switchTab("egov");
+  document.getElementById("egovInput").value = keyword;
+  var el = document.getElementById("lawResults");
+  el.innerHTML = '<div class="loading-row">\u691c\u7d22\u4e2d...</div>';
+  fetch("https://laws.e-gov.go.jp/api/2/laws?keyword=" + encodeURIComponent(keyword) + "&law_type=Act&limit=10")
+    .then(function(r) { return r.json(); })
+    .then(function(j) {
       var laws = j.laws || [];
-      if (!laws.length) { el.innerHTML='<div class="empty">「'+esc(keyword)+'」に一致する法令が見つかりませんでした</div>'; return; }
-      el.innerHTML = laws.map(function(l,i){
-        var id = (l.revision_info && l.revision_info.law_revision_id) || (l.law_info && l.law_info.law_id) || '';
-        var title = (l.revision_info && l.revision_info.law_title) || (l.law_info && l.law_info.law_title) || '(不明)';
-        var num = (l.law_info && l.law_info.law_num) || '';
-        return '<div class="law-item" id="law'+i+'" onclick="toggleLaw('+i+',\''+esc(id)+'\')">'+
-          '<div class="law-item-title">'+esc(title)+'</div>'+
-          '<div class="law-item-sub">'+esc(num)+' <a href="https://laws.e-gov.go.jp/law/'+esc(id)+'" target="_blank" onclick="event.stopPropagation()" style="color:var(--blue);font-size:11px">e-Govで開く ↗</a></div>'+
-          '<div class="law-detail" id="lawDetail'+i+'"><div class="loading-row">読み込み中...</div></div>'+
-          '</div>';
-      }).join('');
+      if (!laws.length) { el.innerHTML = '<div class="empty">\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f</div>'; return; }
+      var html = "";
+      laws.forEach(function(l, i) {
+        var id = (l.revision_info && l.revision_info.law_revision_id) || "";
+        var title = (l.revision_info && l.revision_info.law_title) || (l.law_info && l.law_info.law_title) || "(\u4e0d\u660e)";
+        var num = (l.law_info && l.law_info.law_num) || "";
+        html += '<div class="law-item" id="law' + i + '">'
+          + '<div class="law-item-title">' + esc(title) + '</div>'
+          + '<div class="law-item-sub">' + esc(num) + ' <a href="https://laws.e-gov.go.jp/law/' + esc(id) + '" target="_blank" style="color:var(--blue);font-size:11px">e-Gov\u3067\u958b\u304f</a></div>'
+          + '<div class="law-detail" id="lawDetail' + i + '"><div class="loading-row">\u8aad\u307f\u8fbc\u307f\u4e2d...</div></div>'
+          + '</div>';
+      });
+      el.innerHTML = html;
+      laws.forEach(function(l, i) {
+        var id = (l.revision_info && l.revision_info.law_revision_id) || "";
+        document.getElementById("law" + i).addEventListener("click", function() { toggleLaw(i, id); });
+      });
     })
-    .catch(function(e){ el.innerHTML='<div class="empty">検索エラー。e-GovサイトはCORSを許可している場合のみ動作します。<br><a href="https://laws.e-gov.go.jp" target="_blank" style="color:var(--blue)">e-Govを直接開く ↗</a></div>'; });
+    .catch(function() {
+      el.innerHTML = '<div class="empty">e-Gov API\u306b\u63a5\u7d9a\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f\u3002<br><a href="https://laws.e-gov.go.jp" target="_blank" style="color:var(--blue)">e-Gov\u3092\u76f4\u63a5\u958b\u304f</a></div>';
+    });
 }
 
 function toggleLaw(i, lawId) {
-  var item = document.getElementById('law'+i);
-  var detail = document.getElementById('lawDetail'+i);
-  if (item.classList.contains('open')) { item.classList.remove('open'); return; }
-  item.classList.add('open');
-  fetch('https://laws.e-gov.go.jp/api/2/law_data/'+lawId)
-    .then(function(r){ return r.json(); })
-    .then(function(j){
-      var arts = (j.law_full_text && j.law_full_text.articles) || j.articles || [];
-      if (!arts.length) { detail.innerHTML='<p style="font-size:11px;color:var(--t3);padding:8px 0">条文データを取得できませんでした。</p>'; return; }
-      detail.innerHTML = arts.slice(0,6).map(function(a){
-        return '<div style="margin-bottom:7px"><div class="law-art-title">'+esc(a.article_title||'')+'</div><div class="law-art-body">'+esc(a.article_body||'')+'</div></div>';
-      }).join('<hr style="border:none;border-top:1px solid var(--border);margin:6px 0">') +
-      '<a class="egov-link" href="https://laws.e-gov.go.jp/law/'+lawId+'" target="_blank">全文をe-Govで見る ↗</a>';
+  var item = document.getElementById("law" + i);
+  var detail = document.getElementById("lawDetail" + i);
+  if (item.classList.contains("open")) { item.classList.remove("open"); return; }
+  item.classList.add("open");
+  fetch("https://laws.e-gov.go.jp/api/2/law_data/" + lawId)
+    .then(function(r) { return r.json(); })
+    .then(function(j) {
+      var arts = (j.law_full_text && j.law_full_text.articles) || [];
+      if (!arts.length) { detail.innerHTML = '<p style="font-size:11px;padding:8px 0">\u6761\u6587\u30c7\u30fc\u30bf\u3092\u53d6\u5f97\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f\u3002</p>'; return; }
+      var html = "";
+      arts.slice(0, 5).forEach(function(a, ai) {
+        if (ai > 0) html += '<hr style="border:none;border-top:1px solid var(--border);margin:5px 0">';
+        html += '<div style="margin-bottom:7px"><div class="law-art-title">' + esc(a.article_title || "") + '</div>'
+          + '<div class="law-art-body">' + esc(a.article_body || "") + '</div></div>';
+      });
+      html += '<a href="https://laws.e-gov.go.jp/law/' + lawId + '" target="_blank" style="font-size:11px;color:var(--blue)">\u5168\u6587\u3092e-Gov\u3067\u898b\u308b</a>';
+      detail.innerHTML = html;
     })
-    .catch(function(){ detail.innerHTML='<p style="font-size:11px;color:var(--t3);padding:8px 0"><a href="https://laws.e-gov.go.jp/law/'+lawId+'" target="_blank" style="color:var(--blue)">e-Govで直接確認する ↗</a></p>'; });
+    .catch(function() {
+      detail.innerHTML = '<p style="font-size:11px;padding:8px 0"><a href="https://laws.e-gov.go.jp/law/' + lawId + '" target="_blank" style="color:var(--blue)">e-Gov\u3067\u76f4\u63a5\u78ba\u8a8d\u3059\u308b</a></p>';
+    });
 }
 
-// ═══════════════════════════════════════
 // ANALYSIS
-// ═══════════════════════════════════════
 function runAnalysis() {
   if (G.analyzing) return;
   G.analyzing = true;
-  var btn = document.getElementById('btnAnalyze');
-  btn.innerHTML = '<span class="spin"></span> 分析中...';
+  var btn = document.getElementById("btnAnalyze");
+  btn.textContent = "\u5206\u6790\u4e2d...";
   btn.disabled = true;
-
   getParagraphs().then(function(paras) {
     G.paragraphs = paras;
     G.terms = extractTerms(paras);
     G.formatIssues = detectFormat(paras);
-    G.consistIssues = checkConsist(paras, G.terms);
+    G.consistIssues = checkConsist(paras, G.terms).concat(checkOkurigana(paras));
     G.detectedLaws = detectLawNames(paras);
     renderAll();
-    document.getElementById('idleState').style.display = 'none';
-    document.getElementById('summary').style.display = 'flex';
-    document.getElementById('tabBar').style.display = 'flex';
+    document.getElementById("idleState").style.display = "none";
+    document.getElementById("summary").style.display = "flex";
+    document.getElementById("tabBar").style.display = "flex";
     showPanes();
-    var errN = G.consistIssues.filter(function(i){return i.sev==='error';}).length;
-    toast('分析完了: 定義語'+G.terms.length+'件 / 問題'+(errN + G.formatIssues.length)+'件');
-    if (G.terms.length) return highlightTerms(G.terms);
+    var errN = G.consistIssues.filter(function(i) { return i.sev === "error"; }).length;
+    showToast("\u5b8c\u4e86: \u5b9a\u7fa9\u8a9e" + G.terms.length + "\u4ef6 / \u554f\u984c" + (errN + G.formatIssues.length) + "\u4ef6");
   }).catch(function(e) {
-    console.error('Analysis error:', e);
-    toast('エラー: ' + (e.message || String(e)));
+    showToast("\u30a8\u30e9\u30fc: " + (e.message || String(e)));
   }).finally(function() {
     G.analyzing = false;
-    btn.innerHTML = '今すぐ分析';
+    btn.textContent = "\u4eca\u3059\u3050\u5206\u6790";
     btn.disabled = false;
   });
 }
 
-// ═══════════════════════════════════════
 // RENDER
-// ═══════════════════════════════════════
-function renderAll() {
-  var errN = G.consistIssues.filter(function(i){return i.sev==='error';}).length;
-  var wrnN = G.consistIssues.filter(function(i){return i.sev==='warning';}).length + G.formatIssues.length;
-  document.getElementById('sumTerms').textContent = '定義語 '+G.terms.length;
-  var er = document.getElementById('sumErrors'); er.textContent='エラー '+errN; er.style.display=errN?'inline-flex':'none';
-  var wr = document.getElementById('sumWarns'); wr.textContent='警告 '+wrnN; wr.style.display=wrnN?'inline-flex':'none';
-  var lw = document.getElementById('sumLaws'); lw.textContent='法令 '+G.detectedLaws.length; lw.style.display=G.detectedLaws.length?'inline-flex':'none';
-  document.getElementById('bdgTerms').textContent = G.terms.length;
-  document.getElementById('bdgFormat').textContent = G.formatIssues.length;
-  document.getElementById('bdgConsist').textContent = G.consistIssues.length;
-  document.getElementById('bdgLaws').textContent = G.detectedLaws.length;
-
-  // Terms
-  var tEl = document.getElementById('termsList');
-  document.getElementById('termsDesc').textContent = G.terms.length ? G.terms.length+'件の定義語を検出しました。' : '定義語が見つかりませんでした。';
-  tEl.innerHTML = G.terms.map(function(t,i){
-    return '<div class="tc" id="tc'+i+'" onclick="toggleCard(\'tc'+i+'\')">' +
-      '<div class="tc-hdr"><span class="tc-name">「'+esc(t.term)+'」</span><span class="tc-badge">'+t.count+'回使用</span></div>' +
-      '<div class="tc-body"><div class="tc-ctx">…'+esc(t.definition)+'…</div>' +
-      '<div class="tc-actions"><button class="btn-j" onclick="event.stopPropagation();jumpTo('+t.firstIdx+')">定義箇所へ</button>' +
-      '<button class="btn-egov" onclick="event.stopPropagation();searchLawFor(\''+esc(t.term)+'\')">e-Govで検索</button></div></div></div>';
-  }).join('');
-
-  // Format
-  document.getElementById('formatDesc').textContent = G.formatIssues.length ? G.formatIssues.length+'件の書式問題を検出しました。' : '書式の問題は見つかりませんでした。';
-  document.getElementById('formatList').innerHTML = G.formatIssues.map(function(f){
-    return '<div class="ic ic-fmt"><div class="ic-hdr"><span class="ic-type" style="background:#6366f1">フォーマット</span><span class="ic-term" style="font-size:11px">段落 '+(f.idx+1)+'</span></div>' +
-      '<div class="ic-desc">'+esc(f.issue)+'</div><div class="ic-fix">→ '+esc(f.fix)+'</div>' +
-      '<button class="btn-j" onclick="jumpTo('+f.idx+')">該当箇所へ</button></div>';
-  }).join('');
-
-  // Consist
-  var cEl = document.getElementById('consistList');
-  if (!G.consistIssues.length) {
-    cEl.innerHTML = '<div class="empty"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12" stroke="#16a34a" stroke-width="1.5"/><path d="M9 14l3.5 3.5 6.5-7" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>整合性の問題は見つかりませんでした</div>';
-  } else {
-    cEl.innerHTML = G.consistIssues.slice().sort(function(a,b){return a.sev==='error'?-1:1;}).map(function(i){
-      var cls = i.sev==='error'?'ic-err':'ic-wrn'; var col = i.sev==='error'?'var(--red)':'var(--amber)';
-      return '<div class="ic '+cls+'"><div class="ic-hdr"><span class="ic-type" style="background:'+col+'">'+esc(i.type)+'</span><span class="ic-term">「'+esc(i.term)+'」</span></div>' +
-        '<div class="ic-desc">'+esc(i.desc)+'</div><button class="btn-j" onclick="jumpTo('+i.idx+')">該当箇所へ</button></div>';
-    }).join('');
-  }
-
-  // eGov detected
-  var dEl = document.getElementById('detectedLaws');
-  dEl.innerHTML = G.detectedLaws.length ? '<p class="pdesc">文書内で検出した法令：</p><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+
-    G.detectedLaws.map(function(n){
-      return '<button onclick="searchLawFor(\''+esc(n)+'\')" style="font-size:11px;padding:3px 9px;border:1px solid var(--border);border-radius:100px;background:var(--surface);cursor:pointer;color:var(--blue)">'+esc(n)+'</button>';
-    }).join('')+'</div>' : '';
+function esc(s) {
+  return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-// ═══════════════════════════════════════
+function renderAll() {
+  var errN = G.consistIssues.filter(function(i) { return i.sev === "error"; }).length;
+  var wrnN = G.consistIssues.filter(function(i) { return i.sev === "warning"; }).length + G.formatIssues.length;
+  document.getElementById("sumTerms").textContent = "\u5b9a\u7fa9\u8a9e " + G.terms.length;
+  var er = document.getElementById("sumErrors"); er.textContent = "\u30a8\u30e9\u30fc " + errN; er.style.display = errN ? "inline-flex" : "none";
+  var wr = document.getElementById("sumWarns"); wr.textContent = "\u8b66\u544a " + wrnN; wr.style.display = wrnN ? "inline-flex" : "none";
+  var lw = document.getElementById("sumLaws"); lw.textContent = "\u6cd5\u4ee4 " + G.detectedLaws.length; lw.style.display = G.detectedLaws.length ? "inline-flex" : "none";
+  document.getElementById("bdgTerms").textContent = G.terms.length;
+  document.getElementById("bdgFormat").textContent = G.formatIssues.length;
+  document.getElementById("bdgConsist").textContent = G.consistIssues.length;
+  document.getElementById("bdgLaws").textContent = G.detectedLaws.length;
+
+  // Terms
+  document.getElementById("termsDesc").textContent = G.terms.length
+    ? G.terms.length + "\u4ef6\u306e\u5b9a\u7fa9\u8a9e\u3092\u691c\u51fa\u3057\u307e\u3057\u305f\u3002"
+    : "\u5b9a\u7fa9\u8a9e\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f\u3002";
+  var tHtml = "";
+  G.terms.forEach(function(t, i) {
+    tHtml += '<div class="tc" id="tc' + i + '">'
+      + '<div class="tc-hdr"><span class="tc-name">\u300c' + esc(t.term) + '\u300d</span><span class="tc-badge">' + t.count + '\u56de\u4f7f\u7528</span></div>'
+      + '<div class="tc-body"><div class="tc-ctx">' + esc(t.definition) + '</div>'
+      + '<div class="tc-actions">'
+      + '<button class="btn-j" data-idx="' + t.firstIdx + '">\u5b9a\u7fa9\u7b87\u6240\u3078</button>'
+      + '<button class="btn-egov" data-term="' + esc(t.term) + '">e-Gov\u3067\u691c\u7d22</button>'
+      + '</div></div></div>';
+  });
+  document.getElementById("termsList").innerHTML = tHtml;
+  G.terms.forEach(function(t, i) {
+    var card = document.getElementById("tc" + i);
+    card.querySelector(".tc-hdr").addEventListener("click", function() { card.classList.toggle("open"); });
+    card.querySelector(".btn-j").addEventListener("click", function(e) { e.stopPropagation(); jumpTo(t.firstIdx); });
+    card.querySelector(".btn-egov").addEventListener("click", function(e) { e.stopPropagation(); searchLawFor(t.term); });
+  });
+
+  // Format
+  document.getElementById("formatDesc").textContent = G.formatIssues.length
+    ? G.formatIssues.length + "\u4ef6\u306e\u66f8\u5f0f\u554f\u984c\u3092\u691c\u51fa\u3057\u307e\u3057\u305f\u3002"
+    : "\u66f8\u5f0f\u306e\u554f\u984c\u306f\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f\u3002";
+  var fHtml = "";
+  G.formatIssues.forEach(function(f, i) {
+    fHtml += '<div class="ic ic-fmt">'
+      + '<div class="ic-hdr"><span class="ic-type" style="background:#6366f1">\u30d5\u30a9\u30fc\u30de\u30c3\u30c8</span>'
+      + '<span class="ic-term" style="font-size:11px">\u6bb5\u843d ' + (f.idx + 1) + '</span></div>'
+      + '<div class="ic-desc">' + esc(f.issue) + '</div>'
+      + '<div class="ic-fix">-&gt; ' + esc(f.fix) + '</div>'
+      + '<button class="btn-j" data-idx="' + f.idx + '">\u8a72\u5f53\u7b87\u6240\u3078</button></div>';
+  });
+  document.getElementById("formatList").innerHTML = fHtml;
+  document.querySelectorAll("#formatList .btn-j").forEach(function(btn) {
+    btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
+  });
+
+  // Consist
+  var cEl = document.getElementById("consistList");
+  if (!G.consistIssues.length) {
+    cEl.innerHTML = '<div class="empty">\u6574\u5408\u6027\u30fb\u8868\u8a18\u3086\u308c\u306e\u554f\u984c\u306f\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f</div>';
+  } else {
+    var cHtml = "";
+    G.consistIssues.slice().sort(function(a, b) { return a.sev === "error" ? -1 : 1; })
+      .forEach(function(i2) {
+        var cls = i2.sev === "error" ? "ic-err" : "ic-wrn";
+        var col = i2.sev === "error" ? "var(--red)" : "var(--amber)";
+        cHtml += '<div class="ic ' + cls + '">'
+          + '<div class="ic-hdr"><span class="ic-type" style="background:' + col + '">' + esc(i2.type) + '</span>'
+          + '<span class="ic-term">' + esc(i2.term) + '</span></div>'
+          + '<div class="ic-desc">' + esc(i2.desc) + '</div>'
+          + '<button class="btn-j" data-idx="' + i2.idx + '">\u8a72\u5f53\u7b87\u6240\u3078</button></div>';
+      });
+    cEl.innerHTML = cHtml;
+    cEl.querySelectorAll(".btn-j").forEach(function(btn) {
+      btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
+    });
+  }
+
+  // eGov detected laws
+  var dEl = document.getElementById("detectedLaws");
+  if (G.detectedLaws.length) {
+    var dHtml = '<p class="pdesc">\u6587\u66f8\u5185\u3067\u691c\u51fa\u3057\u305f\u6cd5\u4ee4\uff1a</p><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">';
+    G.detectedLaws.forEach(function(n) {
+      dHtml += '<button style="font-size:11px;padding:3px 9px;border:1px solid var(--border);border-radius:100px;background:var(--surface);cursor:pointer;color:var(--blue)" data-name="' + esc(n) + '">' + esc(n) + '</button>';
+    });
+    dHtml += '</div>';
+    dEl.innerHTML = dHtml;
+    dEl.querySelectorAll("button").forEach(function(btn) {
+      btn.addEventListener("click", function() { searchLawFor(btn.dataset.name); });
+    });
+  } else { dEl.innerHTML = ""; }
+}
+
 // UI HELPERS
-// ═══════════════════════════════════════
 function switchTab(id) {
   G.activeTab = id;
-  document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('on', t.dataset.tab===id); });
+  document.querySelectorAll(".tab").forEach(function(t) { t.classList.toggle("on", t.dataset.tab === id); });
   showPanes();
 }
 function showPanes() {
-  ['terms','format','consist','egov'].forEach(function(id){
-    var p = document.getElementById('pane-'+id);
-    if (p) p.style.display = G.activeTab===id ? 'block' : 'none';
+  ["terms","format","consist","egov"].forEach(function(id) {
+    var p = document.getElementById("pane-" + id);
+    if (p) p.style.display = G.activeTab === id ? "block" : "none";
   });
 }
-function toggleCard(id){ document.getElementById(id).classList.toggle('open'); }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 var toastTimer;
-function toast(msg){ var el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(function(){ el.classList.remove('show'); },3000); }
+function showToast(msg) {
+  var el = document.getElementById("toast");
+  el.textContent = msg; el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.classList.remove("show"); }, 3000);
+}
 
-// ═══════════════════════════════════════
-// INIT - office.js読み込み後に確実に実行
-// ═══════════════════════════════════════
+// INIT
 Office.onReady(function(info) {
-  console.log('Office.onReady:', info);
+  document.getElementById("btnAnalyze").addEventListener("click", runAnalysis);
+  document.getElementById("btnHL").addEventListener("click", clearHL);
+  document.getElementById("btnFix").addEventListener("click", applyFix);
+  document.getElementById("btnSearch").addEventListener("click", searchLaw);
+  document.getElementById("egovInput").addEventListener("keydown", function(e) { if (e.key === "Enter") searchLaw(); });
+  document.querySelectorAll(".tab").forEach(function(t) {
+    t.addEventListener("click", function() { switchTab(t.dataset.tab); });
+  });
 });
+
+})();
+
 </script>
 </body>
 </html>
