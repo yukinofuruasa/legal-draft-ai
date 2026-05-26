@@ -244,6 +244,34 @@ function checkConsist(paragraphs, terms) {
   });
 }
 
+
+function checkJisX0213(paragraphs) {
+  var issues = [];
+  paragraphs.forEach(function(text, idx) {
+    if (/[･-ﾟ]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"半角カタカナ",
+        desc:"半角カタカナが含まれています。法律文書では全角を使用してください", idx:idx });
+    if (/〜/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"〜",
+        desc:"〜(波ダッシュ)は環境により化ける可能性があります。～または2015への変更を検討してください", idx:idx });
+    if (/[-]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"PUA",
+        desc:"私用領域(PUA)の文字が含まれています。環境により表示できない場合があります", idx:idx });
+    if (/[Ⅰ-ⅿ]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"ローマ数字",
+        desc:"特殊ローマ数字(ⅠⅡⅢⅣⅤⅥ)が含まれています。漢数字またはアラビア数字の使用を検討してください", idx:idx });
+    if (/[①-⑳]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"丸数字",
+        desc:"丸数字(①②③...)が含まれています。環境依存文字のため印刷・フォントにより表示できない場合があります", idx:idx });
+    if (/[︀-️]/.test(text))
+      issues.push({ sev:"warning", type:"JIS外文字", term:"異体字",
+        desc:"異体字セレクタが含まれています。法律文書では使用を锱けてください", idx:idx });
+  });
+  var seen = {};
+  return issues.filter(function(i) {
+    var k = i.term+":"+i.idx; if(seen[k]) return false; seen[k]=true; return true;
+  });
+}
 function checkOkurigana(paragraphs) {
   var issues = [];
   var text = paragraphs.join(" ");
@@ -447,7 +475,7 @@ function runAnalysis() {
     G.terms = extractTerms(paras);
     G.formatIssues = detectFormat(paras);
     G.consistIssues = checkConsist(paras, G.terms);
-    G.yureIssues = checkOkurigana(paras);
+    G.yureIssues = checkOkurigana(paras).concat(checkJisX0213(paras));
     G.detectedLaws = detectLawNames(paras);
     renderAll();
     document.getElementById("idleState").style.display = "none";
