@@ -416,6 +416,105 @@ function wordMatchAll(text, word, paragraphs) {
   return result;
 }
 
+
+// Word APIを使った正確な送り仮名チェック
+function checkOkuriganaWithWordAPI(paras) {
+  var groups = [
+    ["取り消し", "取消し", "取消"],
+    ["申し込み", "申込み", "申込"],
+    ["支払い", "支払"],
+    ["引き渡し", "引渡し", "引渡"],
+    ["貸し付け", "貸付け", "貸付"],
+    ["借り入れ", "借入れ", "借入"],
+    ["立て替え", "立替え", "立替"],
+    ["割り当て", "割当て", "割当"]
+  ];
+  var kh = [
+    ["及び", "および"],
+    ["又は", "または"],
+    ["並びに", "ならびに"],
+    ["若しくは", "もしくは"],
+    ["但し", "ただし"],
+    ["直ちに", "ただちに"],
+    ["予め", "あらかじめ"],
+    ["既に", "すでに"],
+    ["更に", "さらに"]
+  ];
+  var allGroups = groups.concat(kh);
+  var text = paras.join(" ");
+
+  // まずJSで「どの語が文書中に存在するか」だけ簡易チェック
+  var candidates = allGroups.filter(function(group) {
+    var found = group.filter(function(w) { return text.indexOf(w) >= 0; });
+    return found.length > 1;
+  });
+  if (candidates.length === 0) return;
+
+  // Word APIで各語を検索して正確な出現箇所を取得
+  Word.run(function(ctx) {
+    var searches = [];
+    candidates.forEach(function(group) {
+      group.forEach(function(word) {
+        if (text.indexOf(word) >= 0) {
+          var r = ctx.document.body.search(word, { matchCase: true, matchWholeWord: false });
+          ctx.load(r, "items/text");
+          searches.push({ word: word, group: group, results: r });
+        }
+      });
+    });
+    return ctx.sync().then(function() {
+      // グループごとに実際の出現数を確認
+      var groupResults = {};
+      searches.forEach(function(s) {
+        var key = s.group.join("|");
+        if (!groupResults[key]) groupResults[key] = { group: s.group, words: {} };
+        groupResults[key].words[s.word] = s.results.items.length;
+      });
+
+      var newIssues = [];
+      Object.keys(groupResults).forEach(function(key) {
+        var gr = groupResults[key];
+        var foundWords = gr.group.filter(function(w) {
+          return (gr.words[w] || 0) > 0;
+        });
+        if (foundWords.length > 1) {
+          // 出現箇所をoccurrencesとして収集
+          var occurrences = [];
+          foundWords.forEach(function(w) {
+            paras.forEach(function(p, i) {
+              if (p.indexOf(w) >= 0) occurrences.push({ word: w, idx: i });
+            });
+          });
+          var labels = foundWords.map(function(w) { return "「" + w + "」"; }).join("と");
+          newIssues.push({
+            sev: "warning", type: "表記ゆれ",
+            term: foundWords.join(" / "),
+            desc: "表記が混在しています: " + labels,
+            idx: occurrences.length > 0 ? occurrences[0].idx : 0,
+            occurrences: occurrences,
+            recommended: gr.group[0]
+          });
+        }
+      });
+
+      if (newIssues.length > 0) {
+        G.yureIssues = G.yureIssues.concat(newIssues);
+        renderAll();
+        document.getElementById("idleState").style.display = "none";
+        document.getElementById("summary").style.display = "flex";
+        document.getElementById("tabBar").style.display = "flex";
+        showPanes();
+      }
+    });
+  }).catch(function(e) {
+    // Word API失敗時はJS判定にフォールバック
+    var fallback = checkOkurigana(paras);
+    if (fallback.length > 0) {
+      G.yureIssues = G.yureIssues.concat(fallback);
+      renderAll();
+    }
+  });
+}
 function checkOkurigana(paragraphs) {
   var issues = [];
   var text = paragraphs.join(" ");
@@ -679,7 +778,9 @@ function runAnalysis() {
     G.terms = extractTerms(paras);
     G.formatIssues = detectFormat(paras);
     G.consistIssues = checkConsist(paras, G.terms);
-    G.yureIssues = checkOkurigana(paras).concat(checkJisX0213(paras)).concat(checkKoyoBun(paras));
+    G.yureIssues = checkJisX0213(paras).concat(checkKoyoBun(paras));
+    // 送り仮名チェックはWord APIで正確に実施
+    checkOkuriganaWithWordAPI(paras);
     G.detectedLaws = detectLawNames(paras);
     renderAll();
     document.getElementById("idleState").style.display = "none";
