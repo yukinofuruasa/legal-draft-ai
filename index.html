@@ -472,15 +472,15 @@ function checkOkuriganaWithWordAPI(paras) {
     var searches = [];
     candidates.forEach(function(group) {
       group.forEach(function(word) {
-        if (text.indexOf(word) >= 0) {
-          // ワイルドカード: 語の後に助詞・句読点・括弧が来る場合のみマッチ
+        if (nounExists(text, word)) {
+          // ワイルドカード: 語の後に助詞・句読点が来る場合のみマッチ
           var pattern = word + AFTER_CHARS;
           var r;
           try {
             r = ctx.document.body.search(pattern, { matchCase: true, matchWildcards: true });
           } catch(e) {
-            // ワイルドカード失敗時は通常検索
-            r = ctx.document.body.search(word, { matchCase: true });
+            // ワイルドカード失敗時はnounExistsで確認済みの段落のみ
+            r = ctx.document.body.search(word + "[をはがにでへもとのやか]", { matchCase: true, matchWildcards: true });
           }
           ctx.load(r, "items/text");
           searches.push({ word: word, group: group, results: r });
@@ -507,7 +507,7 @@ function checkOkuriganaWithWordAPI(paras) {
           var occurrences = [];
           foundWords.forEach(function(w) {
             paras.forEach(function(p, i) {
-              if (p.indexOf(w) >= 0) occurrences.push({ word: w, idx: i });
+              if (nounExists(p, w)) occurrences.push({ word: w, idx: i });
             });
           });
           var labels = foundWords.map(function(w) { return "「" + w + "」"; }).join("と");
