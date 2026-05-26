@@ -396,11 +396,11 @@ function checkJisX0213(paragraphs) {
     var k = i.term+":"+i.idx; if(seen[k]) return false; seen[k]=true; return true;
   });
 }
-var NOUN_AFTER = "[\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3001\u3002\u300d\uff09\\s]";
+var NOUN_AFTER = "[\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3001\u3002\u300d\uff09 ]";
 
 function makeWordRe(word) {
   var escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(escaped + "(?=" + NOUN_AFTER + "|$)");
+  return new RegExp(escaped + "(?=" + NOUN_AFTER + ")");
 }
 
 function wordMatch(text, word) {
