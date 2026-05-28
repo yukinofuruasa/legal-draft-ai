@@ -521,10 +521,15 @@ function searchLawFor(keyword) {
   document.getElementById("egovInput").value = keyword;
   var el = document.getElementById("lawResults");
   el.innerHTML = '<div class="loading-row">\u691c\u7d22\u4e2d...</div>';
-  fetch("https://laws.e-gov.go.jp/api/2/laws?keyword=" + encodeURIComponent(keyword) + "&law_type=Act&limit=10")
+  fetch("https://laws.e-gov.go.jp/api/2/laws?keyword=" + encodeURIComponent(keyword) + "&limit=20")
     .then(function(r) { return r.json(); })
     .then(function(j) {
-      var laws = j.laws || [];
+      var laws = (j.laws || []).filter(function(l) {
+        // 現行施行中のみ
+        var status = (l.current_revision_info && l.current_revision_info.current_revision_status) ||
+                     (l.revision_info && l.revision_info.current_revision_status) || "";
+        return status === "CurrentEnforced";
+      }).slice(0, 10);
       if (!laws.length) { el.innerHTML = '<div class="empty">\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f</div>'; return; }
       var html = "";
       laws.forEach(function(l, i) {
@@ -548,6 +553,25 @@ function searchLawFor(keyword) {
     });
 }
 
+function extractText(node) {
+  if (typeof node === "string") return node;
+  if (Array.isArray(node)) return node.map(extractText).join("");
+  if (node && node.children) return extractText(node.children);
+  return "";
+}
+
+function findByTag(node, tag) {
+  var results = [];
+  if (!node) return results;
+  if (Array.isArray(node)) {
+    node.forEach(function(n) { results = results.concat(findByTag(n, tag)); });
+  } else if (typeof node === "object") {
+    if (node.tag === tag) results.push(node);
+    if (node.children) results = results.concat(findByTag(node.children, tag));
+  }
+  return results;
+}
+
 function toggleLaw(i, lawId) {
   var item = document.getElementById("law" + i);
   var detail = document.getElementById("lawDetail" + i);
@@ -556,19 +580,32 @@ function toggleLaw(i, lawId) {
   fetch("https://laws.e-gov.go.jp/api/2/law_data/" + lawId)
     .then(function(r) { return r.json(); })
     .then(function(j) {
-      var arts = (j.law_full_text && j.law_full_text.articles) || [];
-      if (!arts.length) { detail.innerHTML = '<p style="font-size:11px;padding:8px 0">\u6761\u6587\u30c7\u30fc\u30bf\u3092\u53d6\u5f97\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f\u3002</p>'; return; }
+      var fullText = j.law_full_text;
+      if (!fullText) {
+        detail.innerHTML = '<p style="font-size:11px;padding:8px 0"><a href="https://laws.e-gov.go.jp/law/' + lawId + '" target="_blank" style="color:var(--blue)">e-Govで直接確認する</a></p>';
+        return;
+      }
+      // childrenツリーからArticleを抽出
+      var articles = findByTag(fullText, "Article");
+      if (!articles.length) {
+        detail.innerHTML = '<p style="font-size:11px;padding:8px 0"><a href="https://laws.e-gov.go.jp/law/' + lawId + '" target="_blank" style="color:var(--blue)">e-Govで直接確認する</a></p>';
+        return;
+      }
       var html = "";
-      arts.slice(0, 5).forEach(function(a, ai) {
+      articles.slice(0, 5).forEach(function(a, ai) {
         if (ai > 0) html += '<hr style="border:none;border-top:1px solid var(--border);margin:5px 0">';
-        html += '<div style="margin-bottom:7px"><div class="law-art-title">' + esc(a.article_title || "") + '</div>'
-          + '<div class="law-art-body">' + esc(a.article_body || "") + '</div></div>';
+        var captions = findByTag(a, "ArticleCaption");
+        var title = captions.length ? extractText(captions[0].children) : ("第" + (a.attr && a.attr.Num || "") + "条");
+        var body = extractText(a.children);
+        html += '<div style="margin-bottom:7px">'
+          + '<div class="law-art-title">' + esc(title) + '</div>'
+          + '<div class="law-art-body">' + esc(body.slice(0, 300)) + (body.length > 300 ? "..." : "") + '</div></div>';
       });
-      html += '<a href="https://laws.e-gov.go.jp/law/' + lawId + '" target="_blank" style="font-size:11px;color:var(--blue)">\u5168\u6587\u3092e-Gov\u3067\u898b\u308b</a>';
+      html += '<a href="https://laws.e-gov.go.jp/law/' + lawId + '" target="_blank" style="font-size:11px;color:var(--blue)">全文をe-Govで見る</a>';
       detail.innerHTML = html;
     })
     .catch(function() {
-      detail.innerHTML = '<p style="font-size:11px;padding:8px 0"><a href="https://laws.e-gov.go.jp/law/' + lawId + '" target="_blank" style="color:var(--blue)">e-Gov\u3067\u76f4\u63a5\u78ba\u8a8d\u3059\u308b</a></p>';
+      detail.innerHTML = '<p style="font-size:11px;padding:8px 0"><a href="https://laws.e-gov.go.jp/law/' + lawId + '" target="_blank" style="color:var(--blue)">e-Govで直接確認する</a></p>';
     });
 }
 
