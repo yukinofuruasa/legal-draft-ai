@@ -679,16 +679,46 @@ function renderAll() {
   } else {
     yureDesc.textContent = G.yureIssues.length + "件の表記ゆれを検出しました。";
     var yHtml = "";
-    G.yureIssues.forEach(function(i2) {
-      yHtml += '<div class="ic ic-wrn">'
-        + '<div class="ic-hdr"><span class="ic-type" style="background:var(--amber)">表記ゆれ</span>'
+    G.yureIssues.forEach(function(i2, ii) {
+      var typeColor = i2.type === "重言" ? "#e879f9" :
+                     i2.type === "冗長表現" ? "#6366f1" :
+                     i2.type === "二重否定" ? "var(--red)" :
+                     i2.type === "曘昧表現" ? "#0891b2" :
+                     i2.type === "難解行政用語" ? "#7c3aed" :
+                     i2.type === "公用文表記" ? "#047857" : "var(--amber)";
+      yHtml += '<div class="ic ic-wrn" style="border-left-color:' + typeColor + ';background:#fffbeb">'
+        + '<div class="ic-hdr"><span class="ic-type" style="background:' + typeColor + '">' + esc(i2.type) + '</span>'
         + '<span class="ic-term">' + esc(i2.term) + '</span></div>'
-        + '<div class="ic-desc">' + esc(i2.desc) + '</div>'
-        + '<button class="btn-j" data-idx="' + i2.idx + '">該当箇所へ</button></div>';
+        + '<div class="ic-desc">' + esc(i2.desc) + '</div>';
+      // 文書中の出現箇所を段落から収集してリンク表示
+      var termWords = i2.term.split(" / ");
+      var occurrences = [];
+      termWords.forEach(function(word) {
+        G.paragraphs.forEach(function(p, pidx) {
+          if (p.indexOf(word) >= 0) occurrences.push({ word: word, idx: pidx });
+        });
+      });
+      if (occurrences.length > 0) {
+        yHtml += '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">';
+        var wordOccCount = {};
+        occurrences.forEach(function(o) {
+          var occN = wordOccCount[o.word] || 0;
+          yHtml += '<button class="btn-occ" data-word="' + esc(o.word) + '" data-occ="' + occN + '" style="font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:100px;background:#fff;cursor:pointer;color:var(--text2)">'
+            + esc(o.word) + '</button>';
+          wordOccCount[o.word] = occN + 1;
+        });
+        yHtml += '</div>';
+      } else {
+        yHtml += '<button class="btn-j" data-idx="' + i2.idx + '">該当箇所へ</button>';
+      }
+      yHtml += '</div>';
     });
     yureEl.innerHTML = yHtml;
     yureEl.querySelectorAll(".btn-j").forEach(function(btn) {
       btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
+    });
+    yureEl.querySelectorAll(".btn-occ").forEach(function(btn) {
+      btn.addEventListener("click", function() { jumpToWord(btn.dataset.word, parseInt(btn.dataset.occ || 0)); });
     });
   }
 
