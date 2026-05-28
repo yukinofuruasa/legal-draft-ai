@@ -524,11 +524,30 @@ function searchLawFor(keyword) {
   fetch("https://laws.e-gov.go.jp/api/2/laws?keyword=" + encodeURIComponent(keyword) + "&limit=20")
     .then(function(r) { return r.json(); })
     .then(function(j) {
-      var laws = (j.laws || []).filter(function(l) {
-        // 現行施行中のみ
-        var status = (l.current_revision_info && l.current_revision_info.current_revision_status) ||
-                     (l.revision_info && l.revision_info.current_revision_status) || "";
-        return status === "CurrentEnforced";
+      var allLaws = j.laws || [];
+      // 1. law_titleにキーワードを含むもの優先
+      // 2. remain_in_force: false + 近代以前の法令を除外
+      // 3. law_typeがActまたはCabinetOrder等を含む
+      var kw = keyword;
+      var laws = allLaws.filter(function(l) {
+        var title = (l.revision_info && l.revision_info.law_title) || "";
+        var era = (l.law_info && l.law_info.law_num_era) || "";
+        // 明治・大正・昭和20年以前は除外（ただしタイトルが完全一致する場合は残す）
+        if (era === "Meiji" || era === "Taisho") {
+          return title === kw || title === kw + "法";
+        }
+        // タイトルにキーワードが含まれるもの
+        return title.indexOf(kw) >= 0;
+      }).sort(function(a, b) {
+        // タイトルが完全一致するものを優先
+        var ta = (a.revision_info && a.revision_info.law_title) || "";
+        var tb = (b.revision_info && b.revision_info.law_title) || "";
+        if (ta === kw) return -1;
+        if (tb === kw) return 1;
+        // 新しい法令を優先
+        var ya = (a.law_info && a.law_info.law_num_year) || 0;
+        var yb = (b.law_info && b.law_info.law_num_year) || 0;
+        return yb - ya;
       }).slice(0, 10);
       if (!laws.length) { el.innerHTML = '<div class="empty">\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f</div>'; return; }
       var html = "";
