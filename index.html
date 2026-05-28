@@ -636,15 +636,19 @@ var CLAUSE_PATTERNS = [
   { level: 1, type: "daijo",
     detect: function(t) {
       var m = t.match(/^第\s*([０-９0-9]+)\s*条/);
-      return m ? { num: parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); })) } : null;
+      if (!m) return null;
+      var num = parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); }));
+      return { num: num, len: m[0].length };
     },
     make: function(n) { return "第" + n + "条"; }
   },
-  // N（数字のみ行頭）
+  // N（数字行頭）
   { level: 2, type: "num",
     detect: function(t) {
-      var m = t.match(/^([０-９0-9]+)[.．\s　]/);
-      return m ? { num: parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); })) } : null;
+      var m = t.match(/^([０-９0-9]+)[.．\s　（「]/);
+      if (!m) return null;
+      var num = parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); }));
+      return { num: num, len: m[1].length };
     },
     make: function(n) { return String(n); }
   },
@@ -652,19 +656,49 @@ var CLAUSE_PATTERNS = [
   { level: 3, type: "paren",
     detect: function(t) {
       var m = t.match(/^[（\(]([０-９0-9]+)[）\)]/);
-      return m ? { num: parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); })) } : null;
+      if (!m) return null;
+      var num = parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); }));
+      return { num: num, len: m[0].length };
     },
     make: function(n) { return "（" + n + "）"; }
   },
-  // ア「カタカナ単体（括弧なし）
+  // ア（カタカナ単体）
   { level: 4, type: "kana",
     detect: function(t) {
-      var m = t.match(/^([ア-ン])[\s　]/);
+      var m = t.match(/^([ア-ン])(?:[  　（「、]|$)/);
       if (!m) return null;
       var idx = KANA_LIST.indexOf(m[1]);
-      return idx >= 0 ? { num: idx + 1 } : null;
+      return idx >= 0 ? { num: idx + 1, len: 1 } : null;
     },
     make: function(n) { return KANA_LIST[n-1] || KANA_LIST[0]; }
+  },
+  // （ア）
+  { level: 5, type: "kana_paren",
+    detect: function(t) {
+      var m = t.match(/^[（\(]([ア-ン])[）\)]/);
+      if (!m) return null;
+      var idx = KANA_LIST.indexOf(m[1]);
+      return idx >= 0 ? { num: idx + 1, len: m[0].length } : null;
+    },
+    make: function(n) { return "（" + (KANA_LIST[n-1] || KANA_LIST[0]) + "）"; }
+  },
+  // a-z
+  { level: 6, type: "alpha",
+    detect: function(t) {
+      var m = t.match(/^([a-z])(?:[ 　（「]|$)/);
+      return m ? { num: m[1].charCodeAt(0) - 96, len: 1 } : null;
+    },
+    make: function(n) { return String.fromCharCode(96 + n); }
+  },
+  // (a)
+  { level: 7, type: "alpha_paren",
+    detect: function(t) {
+      var m = t.match(/^[（\(]([a-z])[）\)]/);
+      return m ? { num: m[1].charCodeAt(0) - 96, len: m[0].length } : null;
+    },
+    make: function(n) { return "（" + String.fromCharCode(96 + n) + "）"; }
+  }
+] }
   },
   // （ア）「カタカナ括弧付き
   { level: 5, type: "kana_paren",
@@ -702,15 +736,12 @@ function detectClauseLevel(text) {
     var r = CLAUSE_PATTERNS[i].detect(t);
     if (!r) continue;
 
-    // 条項番号の後に続くテキストを確認
-    var numStr = CLAUSE_PATTERNS[i].make(r.num);
-    var rest = t.slice(numStr.length).trim();
+    // 条項番号の後に続くテキストを確認（lenで正確に切り出す）
+    var rest = t.slice(r.len).trim();
 
-    // NGパターン: 条項番号の後に「の」「に」「は」「が」「を」「で」などの助詞が続く場合
-    // → 文中参照（「第1条の規定により」など）
+    // NGパターン: 助詞が続く場合（文中参照）
     if (/^[のにはがをでへもとから]/.test(rest)) continue;
-
-    // NGパターン: 条項番号の後に「規定」「定め」「基づき」などが続く場合
+    // NGパターン: 「規定」「定め」「基づき」などが続く場合
     if (/^(規定|定め|基づ|より|として|という|となる)/.test(rest)) continue;
 
     return { level: CLAUSE_PATTERNS[i].level, type: CLAUSE_PATTERNS[i].type, num: r.num, pattern: CLAUSE_PATTERNS[i] };
