@@ -87,7 +87,6 @@ body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:va
   <span class="pill pill-b" id="sumTerms">&#23450;&#32681;&#35486; 0</span>
   <span class="pill pill-r" id="sumErrors" style="display:none">&#12456;&#12521;&#12540; 0</span>
   <span class="pill pill-a" id="sumWarns" style="display:none">&#35686;&#21578; 0</span>
-  <span class="pill pill-r" id="sumClause" style="display:none">条項ズレ 0</span>
   <span class="pill pill-a" id="sumYure" style="display:none">表記ゆれ 0</span>
   <span class="pill pill-g" id="sumLaws" style="display:none">&#27861;&#20551; 0</span>
   <button class="btn-xs" id="btnHL">HL&#35299;&#38500;</button>
@@ -97,8 +96,6 @@ body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:va
   <button class="tab" data-tab="format">&#26360;&#24335;<span class="bdg" id="bdgFormat">0</span></button>
   <button class="tab" data-tab="consist">&#25972;&#21512;&#24615;<span class="bdg" id="bdgConsist">0</span></button>
   <button class="tab" data-tab="yure">表記ゆれ<span class="bdg" id="bdgYure">0</span></button>
-  <button class="tab" data-tab="clause">条項<span class="bdg" id="bdgClause">0</span></button>
-  <button class="tab" data-tab="toc">目次</button>
   <button class="tab" data-tab="egov">e-Gov<span class="bdg" id="bdgLaws">0</span></button>
 </div>
 <div class="content">
@@ -118,7 +115,6 @@ body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:va
     <div class="arow">
       <p class="pdesc" id="formatDesc" style="margin-bottom:0"></p>
       <button class="btn-fix" id="btnFix">&#19968;&#25324;&#20462;&#27491;</button>
-      <button class="btn-fix" id="btnFixClause" style="background:#0891b2;margin-left:6px">条項修正</button>
     </div>
     <div id="formatList"></div>
   </div>
@@ -132,17 +128,6 @@ body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:va
   <div class="pane" id="pane-yure" style="display:none">
     <p class="pdesc" id="yureDesc"></p>
     <div id="yureList"></div>
-  </div>
-  <div class="pane" id="pane-clause" style="display:none">
-    <div class="arow">
-      <p class="pdesc" id="clauseDesc"></p>
-      <button class="btn-fix" id="btnFixClause2" style="background:#0891b2">条項一括修正</button>
-    </div>
-    <div id="clauseList"></div>
-  </div>
-  <div class="pane" id="pane-toc" style="display:none">
-    <p class="pdesc">文書内の条項構成です。クリックで該当箇所へじゃんぷできます。</p>
-    <div id="tocList"></div>
   </div>
   <div class="pane" id="pane-egov" style="display:none">
     <div style="padding:10px 0">
@@ -159,9 +144,12 @@ body{font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:13px;background:va
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
 <script>
 
+(function() {
+"use strict";
+
 var G = {
   paragraphs: [], terms: [], formatIssues: [], consistIssues: [],
-  detectedLaws: [], yureIssues: [], clauseIssues: [], activeTab: "terms", analyzing: false, fixing: false
+  detectedLaws: [], yureIssues: [], activeTab: "terms", analyzing: false, fixing: false
 };
 
 // ENGINE
@@ -256,279 +244,63 @@ function checkConsist(paragraphs, terms) {
   });
 }
 
-
-
-function checkKoyoBun(paragraphs) {
+function checkOkurigana(paragraphs) {
   var issues = [];
   var text = paragraphs.join(" ");
-
-  // 1. 重言（意味の重複表現）
-  var jugen = [
-    [/諸先生方/g, "諸先生方", "「諸先生」または「先生方」に統一してください"],
-    [/各都道府県ごとに/g, "各都道府県ごとに", "「各都道府県で」または「都道府県ごとに」に統一してください"],
-    [/第[0-9０-９一二三四五六七八九十]+日目/g, "第N日目", "「第1日」または「1日目」のどちらかに統一してください"],
-    [/約[0-9０-９0-9]+名くらい/g, "約N名くらい", "「約N名」または「N名くらい」のどちらかに統一してください"],
-    [/違和感を感じ/g, "違和感を感じる", "「違和感を覚える」または「違和感がある」に言い換えてください"],
-    [/被害を被る/g, "被害を被る", "「被害を受ける」に言い換えてください"],
-    [/返事を返す/g, "返事を返す", "「返事をする」に言い換えてください"],
-    [/まず最初に/g, "まず最初に", "「まず」または「最初に」のどちらかに統一してください"],
-    [/従来から/g, "従来から", "「従来」のみで十分です（「から」は不要）"]
+  var groups = [
+    ["\u53d6\u308a\u6d88\u3057", "\u53d6\u6d88\u3057", "\u53d6\u6d88"],
+    ["\u7533\u3057\u8fbc\u307f", "\u7533\u8fbc\u307f", "\u7533\u8fbc"],
+    ["\u652f\u6255\u3044", "\u652f\u6255"],
+    ["\u5f15\u304d\u6e21\u3057", "\u5f15\u6e21\u3057", "\u5f15\u6e21"],
+    ["\u8cb8\u3057\u4ed8\u3051", "\u8cb8\u4ed8\u3051", "\u8cb8\u4ed8"],
+    ["\u501f\u308a\u5165\u308c", "\u501f\u5165\u308c", "\u501f\u5165"],
+    ["\u7acb\u3066\u66ff\u3048", "\u7acb\u66ff\u3048", "\u7acb\u66ff"],
+    ["\u5272\u308a\u5f53\u3066", "\u5272\u5f53\u3066", "\u5272\u5f53"]
   ];
-  jugen.forEach(function(j) {
-    paragraphs.forEach(function(t, idx) {
-      if (j[0].test(t)) {
-        j[0].lastIndex = 0;
-        issues.push({ sev:"warning", type:"重言", term:j[1], desc:"重言表現「" + j[1] + "」が含まれています。" + j[2], idx:idx });
-      }
-      j[0].lastIndex = 0;
-    });
-  });
-
-  // 2. 冗長表現（公用文改善）
-  var jocho = [
-    [/利用することができる/g, "利用することができる", "「利用できる」に簡潔化できます"],
-    [/調査を実施した/g, "調査を実施した", "「調査した」に簡潔化できます"],
-    [/対応を行った/g, "対応を行った", "「対応した」に簡潔化できます"],
-    [/検討を行う/g, "検討を行う", "「検討する」に簡潔化できます"],
-    [/問題があるということになる/g, "問題があるということになる", "「問題がある」に簡潔化できます"],
-    [/支援を行っている/g, "支援を行っている", "「支援している」に簡潔化できます"]
+  var kh = [
+    ["\u53ca\u3073", "\u304a\u3088\u3073"],
+    ["\u53c8\u306f", "\u307e\u305f\u306f"],
+    ["\u4e26\u3073\u306b", "\u306a\u3089\u3073\u306b"],
+    ["\u82e5\u3057\u304f\u306f", "\u3082\u3057\u304f\u306f"],
+    ["\u4f46\u3057", "\u305f\u3060\u3057"],
+    ["\u76f4\u3061\u306b", "\u305f\u3060\u3061\u306b"],
+    ["\u4e88\u3081", "\u3042\u3089\u304b\u3058\u3081"],
+    ["\u65e2\u306b", "\u3059\u3067\u306b"],
+    ["\u66f4\u306b", "\u3055\u3089\u306b"]
   ];
-  jocho.forEach(function(j) {
-    paragraphs.forEach(function(t, idx) {
-      j[0].lastIndex = 0;
-      if (j[0].test(t)) {
-        j[0].lastIndex = 0;
-        issues.push({ sev:"warning", type:"冗長表現", term:j[1], desc:"「" + j[1] + "」は冠長です。" + j[2], idx:idx });
-      }
-    });
-  });
-
-  // 3. 曖昧語（語境界チェック付き）
-  var aimai = [
-    "幾つか", "多少", "多め", "少なめ",
-    "早めに", "少しでも早めに", "可及的速やかに",
-    "少人数", "多数"
-  ];
-  aimai.forEach(function(w) {
-    paragraphs.forEach(function(t, idx) {
-      if (t.indexOf(w) >= 0) {
-        issues.push({ sev:"warning", type:"曘昧表現", term:w,
-          desc:"「" + w + "」は曘昧な表現です。具体的な数字や期限を示すことを検討してください", idx:idx });
-      }
-    });
-  });
-
-  // 4. 二重否定
-  var nijuHitei = [
-    [/しないわけではない/g, "しないわけではない", "「することもある」に言い換えてください"],
-    [/できないわけではない/g, "できないわけではない", "「できることもある」に言い換えてください"],
-    [/なくはない/g, "なくはない", "「必要である」など、肯定形に言い換えてください"],
-    [/ではないことはない/g, "ではないことはない", "肯定形に言い換えてください"]
-  ];
-  nijuHitei.forEach(function(j) {
-    paragraphs.forEach(function(t, idx) {
-      j[0].lastIndex = 0;
-      if (j[0].test(t)) {
-        j[0].lastIndex = 0;
-        issues.push({ sev:"warning", type:"二重否定", term:j[1], desc:"二重否定「" + j[1] + "」は分かりにくいです。" + j[2], idx:idx });
-      }
-    });
-  });
-
-  // 5. 接続詞の表記ゆれ（告示・通知文書向け）
-  var setsuZoku = [
-    ["および", "及び", "告示・通知等の公用文では「及び」が原則です"],
-    ["または", "又は", "告示・通知等の公用文では「又は」が原則です"],
-    ["ならびに", "並びに", "告示・通知等の公用文では「並びに」が原則です"],
-    ["もしくは", "若しくは", "告示・通知等の公用文では「若しくは」が原則です"]
-  ];
-  setsuZoku.forEach(function(s) {
-    var re = makeWordRe(s[0]);
-    paragraphs.forEach(function(t, idx) {
-      if (re.test(t)) {
-        issues.push({ sev:"warning", type:"公用文表記", term:s[0],
-          desc:"ひらがな「" + s[0] + "」が使われています。" + s[2], idx:idx });
-      }
-    });
-  });
-
-  // 6. するべき → すべき
+  function checkGroup(group) {
+    var found = group.filter(function(w) { return text.indexOf(w) >= 0; });
+    if (found.length > 1) {
+      var firstIdx = 0;
+      paragraphs.forEach(function(p, i) { if (p.indexOf(found[0]) >= 0 && firstIdx === 0) firstIdx = i; });
+      var labels = found.map(function(w) { return "\u300c" + w + "\u300d"; }).join("\u3068");
+      issues.push({ sev: "warning", type: "\u8868\u8a18\u3086\u308c", term: found.join(" / "),
+        desc: "\u8868\u8a18\u304c\u6df7\u5728\u3057\u3066\u3044\u307e\u3059: " + labels, idx: firstIdx });
+    }
+  }
+  groups.forEach(checkGroup);
+  kh.forEach(checkGroup);
   paragraphs.forEach(function(t, idx) {
-    if (/するべき/.test(t)) {
-      issues.push({ sev:"warning", type:"公用文表記", term:"するべき",
-        desc:"「するべき」は「すべき」に統一してください（公用文の原則）", idx:idx });
+    if (/[\uff10-\uff19]/.test(t) && /[0-9]/.test(t))
+      issues.push({ sev: "warning", type: "\u8868\u8a18\u3086\u308c", term: "\u5168\u89d2/\u534a\u89d2\u6570\u5b57",
+        desc: "\u5168\u89d2\u6570\u5b57\u3068\u534a\u89d2\u6570\u5b57\u304c\u6df7\u5728\u3057\u3066\u3044\u307e\u3059", idx: idx });
+  });
+  var variants = {
+    "\u672c\u5951\u7d04": ["\u5f53\u8a72\u5951\u7d04", "\u540c\u5951\u7d04"],
+    "\u5f53\u793e": ["\u5c0f\u793e", "\u5f53\u8a72\u4f1a\u793a"],
+    "\u7532": ["\u7532\u793e", "\u7532\u65b9"],
+    "\u4e59": ["\u4e59\u793e", "\u4e59\u65b9"]
+  };
+  Object.keys(variants).forEach(function(main) {
+    if (text.indexOf(main) >= 0) {
+      var used = variants[main].filter(function(v) { return text.indexOf(v) >= 0; });
+      if (used.length > 0)
+        issues.push({ sev: "warning", type: "\u8868\u8a18\u3086\u308c", term: main + " / " + used.join(" / "),
+          desc: "\u300c" + main + "\u300d\u3068\u5225\u8868\u8a18\u300c" + used.join("\u300d\u300c") + "\u300d\u304c\u6df7\u5728\u3057\u3066\u3044\u307e\u3059",
+          idx: 0 });
     }
   });
-
-  // 7. 可及的速やかに / 喫緊の課題 などの行政特有難解語
-  var nankai = [
-    ["可及的速やかに", "「できる限り早く」に言い換えてください"],
-    ["喜んで且つの課題", "「すぐに対応すべき重要な課題」に言い換えてください"],
-    ["従前どおり", "「これまでどおり」に言い換えてください"],
-    ["鵜緊の課題", "「すぐに対応すべき重要な課題」に言い換えてください"],
-    ["遠滙なく", "「正当な理由のない限り即座に」の意味です。必要に応じて説明を追加してください"]
-  ];
-  nankai.forEach(function(n) {
-    paragraphs.forEach(function(t, idx) {
-      if (t.indexOf(n[0]) >= 0) {
-        issues.push({ sev:"warning", type:"難解行政用語", term:n[0],
-          desc:"「" + n[0] + "」は一般読者にわかりにくい行政用語です。" + n[1], idx:idx });
-      }
-    });
-  });
-
-  // 重複排除
-  var seen = {};
-  return issues.filter(function(i) {
-    var k = i.type + ":" + i.term + ":" + i.idx;
-    if (seen[k]) return false; seen[k] = true; return true;
-  });
-}
-function checkJisX0213(paragraphs) {
-  var issues = [];
-  paragraphs.forEach(function(text, idx) {
-    if (/[･-ﾟ]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"半角カタカナ",
-        desc:"半角カタカナが含まれています。法律文書では全角を使用してください", idx:idx });
-    if (/〜/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"〜",
-        desc:"〜(波ダッシュ)は環境により化ける可能性があります。～または2015への変更を検討してください", idx:idx });
-    if (/[-]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"PUA",
-        desc:"私用領域(PUA)の文字が含まれています。環境により表示できない場合があります", idx:idx });
-    if (/[Ⅰ-ⅿ]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"ローマ数字",
-        desc:"特殊ローマ数字(ⅠⅡⅢⅣⅤⅥ)が含まれています。漢数字またはアラビア数字の使用を検討してください", idx:idx });
-    if (/[①-⑳]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"丸数字",
-        desc:"丸数字(①②③...)が含まれています。環境依存文字のため印刷・フォントにより表示できない場合があります", idx:idx });
-    if (/[︀-️]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"異体字",
-        desc:"異体字セレクタが含まれています。法律文書では使用を锱けてください", idx:idx });
-  });
-  var seen = {};
-  return issues.filter(function(i) {
-    var k = i.term+":"+i.idx; if(seen[k]) return false; seen[k]=true; return true;
-  });
-}
-function checkJisX0213(paragraphs) {
-  var issues = [];
-  paragraphs.forEach(function(text, idx) {
-    if (/[･-ﾟ]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"半角カタカナ",
-        desc:"半角カタカナが含まれています。法律文書では全角を使用してください", idx:idx });
-    if (/〜/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"〜",
-        desc:"〜(波ダッシュ)は環境により化ける可能性があります。～または2015への変更を検討してください", idx:idx });
-    if (/[-]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"PUA",
-        desc:"私用領域(PUA)の文字が含まれています。環境により表示できない場合があります", idx:idx });
-    if (/[Ⅰ-ⅿ]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"ローマ数字",
-        desc:"特殊ローマ数字(ⅠⅡⅢⅣⅤⅥ)が含まれています。漢数字またはアラビア数字の使用を検討してください", idx:idx });
-    if (/[①-⑳]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"丸数字",
-        desc:"丸数字(①②③...)が含まれています。環境依存文字のため印刷・フォントにより表示できない場合があります", idx:idx });
-    if (/[︀-️]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"異体字",
-        desc:"異体字セレクタが含まれています。法律文書では使用を锱けてください", idx:idx });
-  });
-  var seen = {};
-  return issues.filter(function(i) {
-    var k = i.term+":"+i.idx; if(seen[k]) return false; seen[k]=true; return true;
-  });
-}
-var NOUN_AFTER = "[\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3001\u3002\u300d\uff09 ]";
-
-function makeWordRe(word) {
-  var escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(escaped + "(?=" + NOUN_AFTER + ")");
-}
-
-function wordMatch(text, word) {
-  return makeWordRe(word).test(text);
-}
-
-function wordMatchAll(text, word, paragraphs) {
-  var re = makeWordRe(word);
-  var result = [];
-  paragraphs.forEach(function(p, i) {
-    if (re.test(p)) result.push({ word: word, idx: i });
-  });
-  return result;
-}
-function checkJisX0213(paragraphs) {
-  var issues = [];
-  paragraphs.forEach(function(text, idx) {
-    if (/[･-ﾟ]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"半角カタカナ",
-        desc:"半角カタカナが含まれています。法律文書では全角を使用してください", idx:idx });
-    if (/〜/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"〜",
-        desc:"〜(波ダッシュ)は環境により化ける可能性があります。～または2015への変更を検討してください", idx:idx });
-    if (/[-]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"PUA",
-        desc:"私用領域(PUA)の文字が含まれています。環境により表示できない場合があります", idx:idx });
-    if (/[Ⅰ-ⅿ]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"ローマ数字",
-        desc:"特殊ローマ数字(ⅠⅡⅢⅣⅤⅥ)が含まれています。漢数字またはアラビア数字の使用を検討してください", idx:idx });
-    if (/[①-⑳]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"丸数字",
-        desc:"丸数字(①②③...)が含まれています。環境依存文字のため印刷・フォントにより表示できない場合があります", idx:idx });
-    if (/[︀-️]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"異体字",
-        desc:"異体字セレクタが含まれています。法律文書では使用を锱けてください", idx:idx });
-  });
-  var seen = {};
-  return issues.filter(function(i) {
-    var k = i.term+":"+i.idx; if(seen[k]) return false; seen[k]=true; return true;
-  });
-}
-function checkJisX0213(paragraphs) {
-  var issues = [];
-  paragraphs.forEach(function(text, idx) {
-    if (/[･-ﾟ]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"半角カタカナ",
-        desc:"半角カタカナが含まれています。法律文書では全角を使用してください", idx:idx });
-    if (/〜/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"〜",
-        desc:"〜(波ダッシュ)は環境により化ける可能性があります。～または2015への変更を検討してください", idx:idx });
-    if (/[-]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"PUA",
-        desc:"私用領域(PUA)の文字が含まれています。環境により表示できない場合があります", idx:idx });
-    if (/[Ⅰ-ⅿ]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"ローマ数字",
-        desc:"特殊ローマ数字(ⅠⅡⅢⅣⅤⅥ)が含まれています。漢数字またはアラビア数字の使用を検討してください", idx:idx });
-    if (/[①-⑳]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"丸数字",
-        desc:"丸数字(①②③...)が含まれています。環境依存文字のため印刷・フォントにより表示できない場合があります", idx:idx });
-    if (/[︀-️]/.test(text))
-      issues.push({ sev:"warning", type:"JIS外文字", term:"異体字",
-        desc:"異体字セレクタが含まれています。法律文書では使用を锱けてください", idx:idx });
-  });
-  var seen = {};
-  return issues.filter(function(i) {
-    var k = i.term+":"+i.idx; if(seen[k]) return false; seen[k]=true; return true;
-  });
-}
-var NOUN_AFTER = "[\u3092\u306f\u304c\u306b\u3067\u3078\u3082\u3068\u306e\u3084\u304b\u3001\u3002\u300d\uff09 ]";
-
-function makeWordRe(word) {
-  var escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(escaped + "(?=" + NOUN_AFTER + ")");
-}
-
-function wordMatch(text, word) {
-  return makeWordRe(word).test(text);
-}
-
-function wordMatchAll(text, word, paragraphs) {
-  var re = makeWordRe(word);
-  var result = [];
-  paragraphs.forEach(function(p, i) {
-    if (re.test(p)) result.push({ word: word, idx: i });
-  });
-  return result;
+  return issues;
 }
 
 var LAW_NAMES = ["\u6c11\u6cd5","\u5546\u6cd5","\u4f1a\u793e\u6cd5","\u52b4\u50cd\u57fa\u6e96\u6cd5","\u500b\u4eba\u60c5\u5831\u4fdd\u8b77\u6cd5","\u4e0d\u6b63\u7af6\u4e89\u9632\u6b62\u6cd5","\u7279\u8a31\u6cd5","\u8457\u4f5c\u6a29\u6cd5","\u6d88\u8cbb\u8005\u5951\u7d04\u6cd5","\u4e0b\u8acb\u6cd5","\u72ec\u5360\u7981\u6b62\u6cd5"];
@@ -570,305 +342,6 @@ function jumpTo(idx) {
   }).catch(function() {});
 }
 
-function jumpToWord(word, occIdx) {
-  Word.run(function(ctx) {
-    var results = ctx.document.body.search(word, { matchCase: true });
-    ctx.load(results, "items");
-    return ctx.sync().then(function() {
-      if (results.items.length === 0) return;
-      results.items.forEach(function(r) { r.font.highlightColor = "#FFF3CD"; });
-      var target = results.items[occIdx] || results.items[0];
-      target.select();
-      return ctx.sync();
-    });
-  }).catch(function() {});
-}
-
-
-function fixYure(issue) {
-  if (!issue.occurrences || !issue.recommended) return;
-  // 修正対象の語を収集（recommended以外の語）
-  var toFix = {};
-  issue.occurrences.forEach(function(o) {
-    if (o.word !== issue.recommended) {
-      if (!toFix[o.word]) toFix[o.word] = [];
-      toFix[o.word].push(o.idx);
-    }
-  });
-  var words = Object.keys(toFix);
-  if (words.length === 0) { showToast("修正対象がありません"); return; }
-
-  Word.run(function(ctx) {
-    var ops = words.map(function(word) {
-      var results = ctx.document.body.search(word, { matchCase: true });
-      ctx.load(results, "text");
-      return { word: word, results: results };
-    });
-    return ctx.sync().then(function() {
-      var count = 0;
-      ops.forEach(function(op) {
-        op.results.items.forEach(function(r) {
-          r.insertText(issue.recommended, "Replace");
-          count++;
-        });
-      });
-      return ctx.sync().then(function() { return count; });
-    });
-  }).then(function(count) {
-    showToast(count + "箇所を「" + issue.recommended + "」に修正しました");
-    runAnalysis();
-  }).catch(function(e) {
-    showToast("修正エラー: " + (e.message || String(e)));
-  });
-}
-
-// ── 条項番号ズレ検出・修正 ──────────────────────────────────
-// ルール: 第N条 > N > (N) > ア > a > (a)
-var ARA = "アイウエオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデト";
-// カタカナ「ア」から順に
-var KANA_LIST = ["ア","イ","ウ","エ","オ","カ","キ","ク","ケ","コ","サ","シ","ス","セ","ソ","タ","チ","ツ","テ","ト","ナ","ニ","ヌ","ネ","ノ"];
-// ひらがな「ア」→ア行
-var HIRA_LIST = ["ア","イ","ウ","エ","オ","カ","キ","ク","ケ","コ","サ","シ","ス","セ","ソ","タ","チ","ツ","テ","ト"];
-
-// 条項パターン定義（レベル順）
-var CLAUSE_PATTERNS = [
-  // 第N条
-  { level: 1, type: "daijo",
-    detect: function(t) {
-      var m = t.match(/^第\s*([０-９0-9]+)\s*条/);
-      if (!m) return null;
-      var num = parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); }));
-      return { num: num, len: m[0].length };
-    },
-    make: function(n) { return "第" + n + "条"; }
-  },
-  // N（数字行頭）
-  { level: 2, type: "num",
-    detect: function(t) {
-      var m = t.match(/^([０-９0-9]+)[.．\s　（「]/);
-      if (!m) return null;
-      var num = parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); }));
-      return { num: num, len: m[1].length };
-    },
-    make: function(n) { return String(n); }
-  },
-  // （N）
-  { level: 3, type: "paren",
-    detect: function(t) {
-      var m = t.match(/^[（\(]([０-９0-9]+)[）\)]/);
-      if (!m) return null;
-      var num = parseInt(m[1].replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0xFEE0); }));
-      return { num: num, len: m[0].length };
-    },
-    make: function(n) { return "（" + n + "）"; }
-  },
-  // ア（カタカナ単体）
-  { level: 4, type: "kana",
-    detect: function(t) {
-      var m = t.match(/^([ア-ン])(?:[  　（「、]|$)/);
-      if (!m) return null;
-      var idx = KANA_LIST.indexOf(m[1]);
-      return idx >= 0 ? { num: idx + 1, len: 1 } : null;
-    },
-    make: function(n) { return KANA_LIST[n-1] || KANA_LIST[0]; }
-  },
-  // （ア）
-  { level: 5, type: "kana_paren",
-    detect: function(t) {
-      var m = t.match(/^[（\(]([ア-ン])[）\)]/);
-      if (!m) return null;
-      var idx = KANA_LIST.indexOf(m[1]);
-      return idx >= 0 ? { num: idx + 1, len: m[0].length } : null;
-    },
-    make: function(n) { return "（" + (KANA_LIST[n-1] || KANA_LIST[0]) + "）"; }
-  },
-  // a-z
-  { level: 6, type: "alpha",
-    detect: function(t) {
-      var m = t.match(/^([a-z])(?:[ 　（「]|$)/);
-      return m ? { num: m[1].charCodeAt(0) - 96, len: 1 } : null;
-    },
-    make: function(n) { return String.fromCharCode(96 + n); }
-  },
-  // (a)
-  { level: 7, type: "alpha_paren",
-    detect: function(t) {
-      var m = t.match(/^[（\(]([a-z])[）\)]/);
-      return m ? { num: m[1].charCodeAt(0) - 96, len: m[0].length } : null;
-    },
-    make: function(n) { return "（" + String.fromCharCode(96 + n) + "）"; }
-  }
-] }
-  },
-  // （ア）「カタカナ括弧付き
-  { level: 5, type: "kana_paren",
-    detect: function(t) {
-      var m = t.match(/^[（\(]([ア-ン])[）\)]/);
-      if (!m) return null;
-      var idx = KANA_LIST.indexOf(m[1]);
-      return idx >= 0 ? { num: idx + 1 } : null;
-    },
-    make: function(n) { return "（" + (KANA_LIST[n-1] || KANA_LIST[0]) + "）"; }
-  },
-  // a「a-z小文字
-  { level: 6, type: "alpha",
-    detect: function(t) {
-      var m = t.match(/^([a-z])[\s　]/);
-      return m ? { num: m[1].charCodeAt(0) - 96 } : null;
-    },
-    make: function(n) { return String.fromCharCode(96 + n); }
-  },
-  // (a)「括弧付き小文字
-  { level: 7, type: "alpha_paren",
-    detect: function(t) {
-      var m = t.match(/^[（\(]([a-z])[）\)]/);
-      return m ? { num: m[1].charCodeAt(0) - 96 } : null;
-    },
-    make: function(n) { return "（" + String.fromCharCode(96 + n) + "）"; }
-  }
-];
-
-function detectClauseLevel(text) {
-  var t = text.trim();
-  if (!t) return null;
-
-  for (var i = 0; i < CLAUSE_PATTERNS.length; i++) {
-    var r = CLAUSE_PATTERNS[i].detect(t);
-    if (!r) continue;
-
-    // 条項番号の後に続くテキストを確認（lenで正確に切り出す）
-    var rest = t.slice(r.len).trim();
-
-    // NGパターン: 助詞が続く場合（文中参照）
-    if (/^[のにはがをでへもとから]/.test(rest)) continue;
-    // NGパターン: 「規定」「定め」「基づき」などが続く場合
-    if (/^(規定|定め|基づ|より|として|という|となる)/.test(rest)) continue;
-
-    return { level: CLAUSE_PATTERNS[i].level, type: CLAUSE_PATTERNS[i].type, num: r.num, pattern: CLAUSE_PATTERNS[i] };
-  }
-  return null;
-}
-
-
-function buildToc(paragraphs) {
-  var items = [];
-  paragraphs.forEach(function(raw, idx) {
-    var t = raw.trim();
-    if (!t) return;
-    // 第N条 → レベル1
-    var m1 = t.match(/^第\s*([０-９0-9]+)\s*条([\s　（「].*)?/);
-    if (m1) { items.push({ level:1, text:t.slice(0,40), idx:idx }); return; }
-    // N. または N　 → レベル2
-    var m2 = t.match(/^([０-９0-9]+)[.．\s　](.{0,30})/);
-    if (m2) { items.push({ level:2, text:t.slice(0,40), idx:idx }); return; }
-    // （N） → レベル3
-    var m3 = t.match(/^[（\(][０-９0-9]+[）\)]/);
-    if (m3) { items.push({ level:3, text:t.slice(0,40), idx:idx }); return; }
-  });
-  return items;
-}
-function checkClauseOrder(paragraphs) {
-  var issues = [];
-  // レベルごとのカウンター
-  var counters = { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 };
-  // レベルごとの最終値（上位レベルが変わったら下位をリセット）
-  var lastLevel = 0;
-
-  paragraphs.forEach(function(raw, idx) {
-    var t = raw.trim();
-    if (!t) return;
-    var detected = detectClauseLevel(t);
-    if (!detected) return;
-
-    var lv = detected.level;
-    // 上位レベルが変わったら下位カウンターをリセット
-    if (lv < lastLevel) {
-      for (var l = lv + 1; l <= 7; l++) counters[l] = 0;
-    }
-    // 上位レベルが初出なら下位をリセット
-    if (lv > 1 && lv < lastLevel) {
-      for (var l2 = lv + 1; l2 <= 7; l2++) counters[l2] = 0;
-    }
-
-    counters[lv]++;
-    var expected = counters[lv];
-    var actual = detected.num;
-
-    if (actual !== expected) {
-      var expectedStr = detected.pattern.make(expected);
-      issues.push({
-        idx: idx,
-        level: lv,
-        type: detected.type,
-        actual: actual,
-        expected: expected,
-        expectedStr: expectedStr,
-        text: t.slice(0, 40),
-        sev: "error",
-        issueType: "条項番号ズレ",
-        term: t.slice(0, 15),
-        desc: "条項番号が不連続です。" + actual + " → " + expected + " (「" + expectedStr + "」が期待されます)"
-      });
-    }
-    lastLevel = lv;
-  });
-  return issues;
-}
-
-function fixClauseOrder() {
-  if (G.fixing) return;
-  G.fixing = true;
-  var btn = document.getElementById("btnFixClause");
-  btn.disabled = true;
-  btn.textContent = "修正中...";
-
-  Word.run(function(ctx) {
-    var ps = ctx.document.body.paragraphs;
-    ctx.load(ps, "text");
-    return ctx.sync().then(function() {
-      var counters = { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 };
-      var lastLevel = 0;
-      var fixed = 0;
-
-      for (var i = 0; i < ps.items.length; i++) {
-        var t = ps.items[i].text.trim();
-        if (!t) continue;
-        var detected = detectClauseLevel(t);
-        if (!detected) continue;
-
-        var lv = detected.level;
-        if (lv < lastLevel) {
-          for (var l = lv + 1; l <= 7; l++) counters[l] = 0;
-        }
-        counters[lv]++;
-        var expected = counters[lv];
-        var actual = detected.num;
-
-        if (actual !== expected) {
-          var expectedStr = detected.pattern.make(expected);
-          // 行頭の番号部分を置換
-          var newText = ps.items[i].text.replace(
-            ps.items[i].text.trim().slice(0, detected.pattern.make(actual).length),
-            expectedStr
-          );
-          ps.items[i].insertText(newText, "Replace");
-          fixed++;
-        }
-        lastLevel = lv;
-      }
-      return ctx.sync().then(function() { return fixed; });
-    });
-  }).then(function(fixed) {
-    showToast(fixed + "箇所の条項番号を修正しました");
-    if (fixed > 0) runAnalysis();
-  }).catch(function(e) {
-    showToast("修正エラー: " + (e.message || String(e)));
-  }).finally(function() {
-    G.fixing = false;
-    btn.disabled = false;
-    btn.textContent = "条項一括修正";
-  });
-}
 function applyFix() {
   if (G.fixing) return;
   G.fixing = true;
@@ -974,8 +447,7 @@ function runAnalysis() {
     G.terms = extractTerms(paras);
     G.formatIssues = detectFormat(paras);
     G.consistIssues = checkConsist(paras, G.terms);
-    G.clauseIssues = checkClauseOrder(paras);
-    G.yureIssues = checkJisX0213(paras).concat(checkKoyoBun(paras));
+    G.yureIssues = checkOkurigana(paras);
     G.detectedLaws = detectLawNames(paras);
     renderAll();
     document.getElementById("idleState").style.display = "none";
@@ -1004,8 +476,6 @@ function renderAll() {
   document.getElementById("sumTerms").textContent = "\u5b9a\u7fa9\u8a9e " + G.terms.length;
   var er = document.getElementById("sumErrors"); er.textContent = "\u30a8\u30e9\u30fc " + errN; er.style.display = errN ? "inline-flex" : "none";
   var wr = document.getElementById("sumWarns"); wr.textContent = "\u8b66\u544a " + wrnN; wr.style.display = wrnN ? "inline-flex" : "none";
-  var cl = document.getElementById("sumClause"); cl.textContent = "条項ズレ " + G.clauseIssues.length; cl.style.display = G.clauseIssues.length ? "inline-flex" : "none";
-  document.getElementById("bdgClause").textContent = G.clauseIssues.length;
   var yu = document.getElementById("sumYure"); yu.textContent = "表記ゆれ " + G.yureIssues.length; yu.style.display = G.yureIssues.length ? "inline-flex" : "none";
   var lw = document.getElementById("sumLaws"); lw.textContent = "\u6cd5\u4ee4 " + G.detectedLaws.length; lw.style.display = G.detectedLaws.length ? "inline-flex" : "none";
   document.getElementById("bdgTerms").textContent = G.terms.length;
@@ -1085,112 +555,15 @@ function renderAll() {
   } else {
     yureDesc.textContent = G.yureIssues.length + "件の表記ゆれを検出しました。";
     var yHtml = "";
-    G.yureIssues.forEach(function(i2, ii) {
-      var typeColor = i2.type === "表記ゆれ" ? "var(--amber)" :
-                     i2.type === "重言" ? "#e879f9" :
-                     i2.type === "冗長表現" ? "#6366f1" :
-                     i2.type === "二重否定" ? "var(--red)" :
-                     i2.type === "曘昧表現" ? "#0891b2" :
-                     i2.type === "難解行政用語" ? "#7c3aed" :
-                     i2.type === "公用文表記" ? "#047857" : "var(--amber)";
-      yHtml += '<div class="ic ic-wrn" style="border-left-color:' + typeColor + ';background:#fffbeb">'
-        + '<div class="ic-hdr"><span class="ic-type" style="background:' + typeColor + '">' + esc(i2.type) + '</span>'
-        + '<span class="ic-term">' + esc(i2.term) + '</span></div>'
-        + '<div class="ic-desc">' + esc(i2.desc) + '</div>';
-      // 出現箇所リンク（語ごとに色分け）
-      if (i2.occurrences && i2.occurrences.length > 0) {
-        yHtml += '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">';
-        // 語ごとにグループ化（Word検索順のインデックスを保持）
-        var wordGroups = {};
-        i2.occurrences.forEach(function(o) {
-          if (!wordGroups[o.word]) wordGroups[o.word] = [];
-          wordGroups[o.word].push(o.idx);
-        });
-        // 各語のWord検索結果インデックス（全文中の何番目か）をカウント
-        var wordOccCount = {};
-        Object.keys(wordGroups).forEach(function(word) {
-          var idxs = wordGroups[word];
-          idxs.forEach(function(pidx) {
-            var occN = wordOccCount[word] || 0;
-            yHtml += '<button class="btn-occ" data-idx="' + pidx + '" data-word="' + esc(word) + '" data-occ="' + occN + '" style="font-size:10px;padding:2px 7px;border:1px solid var(--border);border-radius:100px;background:#fff;cursor:pointer;color:var(--text2)">'
-              + esc(word) + '</button>';
-            wordOccCount[word] = occN + 1;
-          });
-        });
-        // 推奨形への一括修正ボタン
-        if (i2.recommended) {
-          yHtml += '<button class="btn-fix-yure" data-ii="' + ii + '" style="font-size:10px;padding:2px 9px;border:none;border-radius:100px;background:#047857;color:#fff;cursor:pointer;font-weight:600;margin-left:auto">'
-            + '「' + esc(i2.recommended) + '」に一括修正</button>';
-        }
-        yHtml += '</div>';
-      } else {
-        yHtml += '<button class="btn-j" data-idx="' + i2.idx + '">該当箇所へ</button>';
-      }
-      yHtml += '</div>';
-    });
-    yureEl.innerHTML = yHtml;
-    // 出現箇所ボタン
-    yureEl.querySelectorAll(".btn-occ").forEach(function(btn) {
-      btn.addEventListener("click", function() { jumpToWord(btn.dataset.word, parseInt(btn.dataset.occ || 0)); });
-    });
-    // 通常ジャンプボタン
-    yureEl.querySelectorAll(".btn-j").forEach(function(btn) {
-      btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
-    });
-    // 一括修正ボタン
-    yureEl.querySelectorAll(".btn-fix-yure").forEach(function(btn) {
-      btn.addEventListener("click", function() {
-        var ii = parseInt(btn.dataset.ii);
-        var issue = G.yureIssues[ii];
-        if (!issue || !issue.occurrences || !issue.recommended) return;
-        fixYure(issue);
-      });
-    });
-  }
-
-  // 条項タブ
-  var clauseEl = document.getElementById("clauseList");
-  var clauseDesc = document.getElementById("clauseDesc");
-  document.getElementById("bdgClause").textContent = G.clauseIssues.length;
-  if (!G.clauseIssues.length) {
-    clauseDesc.textContent = "条項番号のズレは検出されませんでした。";
-    clauseEl.innerHTML = "";
-  } else {
-    clauseDesc.textContent = G.clauseIssues.length + "箇所の条項番号ズレを検出しました。";
-    var cHtml = "";
-    G.clauseIssues.forEach(function(i2) {
-      cHtml += '<div class="ic ic-err">'
-        + '<div class="ic-hdr"><span class="ic-type" style="background:var(--red)">条項ズレ</span>'
+    G.yureIssues.forEach(function(i2) {
+      yHtml += '<div class="ic ic-wrn">'
+        + '<div class="ic-hdr"><span class="ic-type" style="background:var(--amber)">表記ゆれ</span>'
         + '<span class="ic-term">' + esc(i2.term) + '</span></div>'
         + '<div class="ic-desc">' + esc(i2.desc) + '</div>'
         + '<button class="btn-j" data-idx="' + i2.idx + '">該当箇所へ</button></div>';
     });
-    clauseEl.innerHTML = cHtml;
-    clauseEl.querySelectorAll(".btn-j").forEach(function(btn) {
-      btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
-    });
-  }
-
-  // 目次タブ
-  var tocEl = document.getElementById("tocList");
-  var tocItems = buildToc(G.paragraphs);
-  if (!tocItems.length) {
-    tocEl.innerHTML = '<div class="empty">条項構成が検出できませんでした。</div>';
-  } else {
-    var tHtml = "";
-    tocItems.forEach(function(item) {
-      var indent = (item.level - 1) * 14;
-      var color = item.level === 1 ? "var(--accent)" : item.level === 2 ? "var(--text)" : "var(--t2)";
-      var size = item.level === 1 ? "13px" : item.level === 2 ? "12px" : "11px";
-      var weight = item.level === 1 ? "700" : item.level === 2 ? "600" : "400";
-      var border = item.level === 1 ? "border-top:1px solid var(--border);margin-top:6px;padding-top:6px;" : "";
-      tHtml += '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;' + border + '">'
-        + '<div style="width:' + indent + 'px;flex-shrink:0"></div>'
-        + '<button style="text-align:left;background:none;border:none;cursor:pointer;color:' + color + ';font-size:' + size + ';font-weight:' + weight + ';flex:1;padding:2px 4px;border-radius:3px;line-height:1.4" data-idx="' + item.idx + '">'
-        + esc(item.text) + '</button></div>';
-    });
-    tocEl.innerHTML = tHtml;
-    tocEl.querySelectorAll("button[data-idx]").forEach(function(btn) {
+    yureEl.innerHTML = yHtml;
+    yureEl.querySelectorAll(".btn-j").forEach(function(btn) {
       btn.addEventListener("click", function() { jumpTo(parseInt(btn.dataset.idx)); });
     });
   }
@@ -1217,7 +590,7 @@ function switchTab(id) {
   showPanes();
 }
 function showPanes() {
-  ["terms","format","consist","yure","clause","toc","egov"].forEach(function(id) {
+  ["terms","format","consist","yure","egov"].forEach(function(id) {
     var p = document.getElementById("pane-" + id);
     if (p) p.style.display = G.activeTab === id ? "block" : "none";
   });
@@ -1232,11 +605,10 @@ function showToast(msg) {
 
 // INIT
 Office.onReady(function(info) {
+  // Word内かブラウザか判定
   document.getElementById("btnAnalyze").addEventListener("click", runAnalysis);
   document.getElementById("btnHL").addEventListener("click", clearHL);
   document.getElementById("btnFix").addEventListener("click", applyFix);
-  document.getElementById("btnFixClause").addEventListener("click", fixClauseOrder);
-  document.getElementById("btnFixClause2").addEventListener("click", fixClauseOrder);
   document.getElementById("btnSearch").addEventListener("click", searchLaw);
   document.getElementById("egovInput").addEventListener("keydown", function(e) { if (e.key === "Enter") searchLaw(); });
   document.querySelectorAll(".tab").forEach(function(t) {
@@ -1244,6 +616,7 @@ Office.onReady(function(info) {
   });
 });
 
+})();
 
 </script>
 </body>
